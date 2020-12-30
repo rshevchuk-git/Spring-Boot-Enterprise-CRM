@@ -18,4 +18,10 @@ public class OrderKindEntity {
 
     @Column(name = "kind")
     private String kindName;
+
+    @Column(name = "width")
+    private Integer width;
+
+    @Column(name = "height")
+    private Integer height;
 }

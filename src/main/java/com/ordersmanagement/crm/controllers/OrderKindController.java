@@ -1,6 +1,5 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.DimensionEntity;
 import com.ordersmanagement.crm.models.entities.OrderKindEntity;
 import com.ordersmanagement.crm.services.OrderKindService;
 import lombok.AllArgsConstructor;
@@ -48,19 +47,5 @@ public class OrderKindController {
                                               @PathVariable(name = "new_id")     OrderKindEntity newKind) {
         orderKindService.replaceOrderKinds(replaceKind, newKind);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/dimensions")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<DimensionEntity> getOrderKindDimensions(@PathVariable("id") Integer orderKindId) {
-        return new ResponseEntity<>(orderKindService.getOrderKindDimensions(orderKindId), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/{width}/{height}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<DimensionEntity> saveOrderKindDimensions(@PathVariable("id")     Integer orderKindId,
-                                                                   @PathVariable("width")  Integer width,
-                                                                   @PathVariable("height") Integer height) {
-        return new ResponseEntity<>(orderKindService.saveOrderKindDimensions(orderKindId, width, height), HttpStatus.CREATED);
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/price-links")
+@RequestMapping("/api/cp-links")
 public class CPLinkController {
 
     private final LinkService linkService;

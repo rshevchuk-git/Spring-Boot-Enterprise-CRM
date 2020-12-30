@@ -25,7 +25,7 @@ public class CPLinkEntity {
     @ManyToOne
     @MapsId("kind_id")
     @JoinColumn(name = "kind_id")
-    private OrderKindEntity kind;
+    private OrderKindEntity orderKind;
 
     @Column(name = "price")
     private double price;

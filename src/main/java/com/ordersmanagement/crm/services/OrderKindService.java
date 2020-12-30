@@ -1,9 +1,7 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.DimensionRepository;
 import com.ordersmanagement.crm.dao.orders.OrderKindRepository;
 import com.ordersmanagement.crm.dao.orders.OrderRepository;
-import com.ordersmanagement.crm.models.entities.DimensionEntity;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import com.ordersmanagement.crm.models.entities.OrderKindEntity;
 import lombok.AllArgsConstructor;
@@ -16,7 +14,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class OrderKindService {
 
-    private final DimensionRepository dimensionRepository;
     private final OrderKindRepository orderKindRepository;
     private final OrderRepository orderRepository;
 
@@ -47,14 +44,5 @@ public class OrderKindService {
         orderRepository.saveAll(byOrderKind);
 
         deleteOrderKind(replaceKind.getKindId());
-    }
-
-    public DimensionEntity getOrderKindDimensions(Integer orderKindId) {
-        return dimensionRepository.findById(orderKindId)
-                                  .orElse(new DimensionEntity(orderKindId, 0,0));
-    }
-
-    public DimensionEntity saveOrderKindDimensions(Integer orderKindId, Integer width, Integer height) {
-        return dimensionRepository.save(new DimensionEntity(orderKindId, width, height));
     }
 }
