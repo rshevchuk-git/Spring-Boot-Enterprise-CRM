@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
+import com.ordersmanagement.crm.dao.orders.CustomerRepository;
 import com.ordersmanagement.crm.models.forms.CustomersWrapper;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.services.CustomerService;
@@ -23,12 +24,54 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CustomerRepository customerRepository;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<CustomerEntity>> getAllCustomers() {
         return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
     }
+
+//
+//    @GetMapping("/fix")
+//    public ResponseEntity<?> fixCustomers() {
+//        List<CustomerEntity> all = customerRepository.findAll();
+//
+//        all.forEach(customer -> {
+//            String payLog = customer.getPayLog();
+//            if( payLog != null ) {
+//                String[] payments = payLog.split("\\n");
+//                List<String> newPayments = new ArrayList<>();
+//                if (payments.length > 0) {
+//                    for (String payment : payments) {
+//                        if (payment.isEmpty()) continue;
+//                        payment = payment.trim();
+//                        String storedDate = payment.substring(payment.indexOf("та : ") + 5, payment.indexOf(" Сум") - 1);
+//
+//                        String year = storedDate.substring(0, 4);
+//                        String month = storedDate.substring(5, 7);
+//                        String day = storedDate.substring(8, 10);
+//
+//                        String hour = storedDate.substring(11, 13);
+//                        String minute = storedDate.substring(14, 16);
+//
+//                        String newDate = day + "/" + month + "/" + year + " " + hour + ":" + minute;
+//                        String newPayment = payment.substring(0, payment.indexOf("та : ") + 5) + newDate + " " + payment.substring(payment.indexOf("Сум") - 1);
+//                        int sum = (int) Double.parseDouble(newPayment.substring(newPayment.indexOf("ма : ") + 5, newPayment.indexOf(" Отр")));
+//                        String finalPayment = newPayment.substring(0, newPayment.indexOf("ма : ") + 5) + sum + " " + newPayment.substring(newPayment.indexOf(" Отр"));
+//                        newPayments.add(finalPayment);
+//                    }
+//                    String newLog = String.join("\n", newPayments) + "\n";
+//                    customer.setPayLog(newLog);
+//                    System.out.println(customer.getPayLog());
+//                    customerRepository.save(customer);
+//                }
+//            }
+//        });
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
 //
 //    @GetMapping("/{username}")
 //    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
@@ -36,12 +79,18 @@ public class CustomerController {
 //        return customerRepository.findByCustomerName(customerName);
 //    }
 
-    @RequestMapping(value={"/"}, method={RequestMethod.POST, RequestMethod.PUT})
+    @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> saveCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
         return customerService.saveCustomer(newCustomer)
                 .map(savedCustomer -> new ResponseEntity<>(savedCustomer, HttpStatus.CREATED))
                 .orElseGet(()      -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    }
+
+    @PutMapping("/")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
+    public ResponseEntity<CustomerEntity> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+        return new ResponseEntity<>(customerService.updateCustomer(newCustomer), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

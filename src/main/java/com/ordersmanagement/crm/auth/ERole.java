@@ -9,5 +9,6 @@ public enum ERole {
     ROLE_ACCOUNTER,
     ROLE_CTP,
     ROLE_DESIGNER,
+    ROLE_GROUNDFLOOR,
     ROLE_MANAGER
 }

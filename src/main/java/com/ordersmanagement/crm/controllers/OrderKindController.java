@@ -23,6 +23,12 @@ public class OrderKindController {
         return new ResponseEntity<>(orderKindService.getAllOrderKinds(), HttpStatus.OK);
     }
 
+    @PutMapping("/")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
+    public ResponseEntity<OrderKindEntity> updateOrderKind(@RequestBody OrderKindEntity orderKind) {
+        return new ResponseEntity<>(orderKindService.updateOrderKind(orderKind), HttpStatus.OK);
+    }
+
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<OrderKindEntity> addNewOrderKind(@RequestBody OrderKindEntity orderKind) {

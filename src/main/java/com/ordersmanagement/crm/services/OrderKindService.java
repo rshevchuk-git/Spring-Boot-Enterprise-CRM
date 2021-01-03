@@ -29,6 +29,10 @@ public class OrderKindService {
         }
     }
 
+    public OrderKindEntity updateOrderKind(OrderKindEntity newOrderKind) {
+        return orderKindRepository.save(newOrderKind);
+    }
+
     public boolean deleteOrderKind(Integer orderKindId) {
         if (orderKindRepository.existsByKindId(orderKindId)) {
             orderKindRepository.deleteById(orderKindId);

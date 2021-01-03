@@ -35,12 +35,8 @@ public class PaymentService {
         return paymentMethodRepository.findAll();
     }
 
-    public Optional<PaymentMethodEntity> savePaymentMethod(PaymentMethodEntity paymentMethod) {
-        if (paymentMethodRepository.existsByTypeName(paymentMethod.getTypeName())) {
-            return Optional.empty();
-        }
-        paymentMethod.setPaymentTypeID(0);
-        return Optional.of(paymentMethodRepository.save(paymentMethod));
+    public PaymentMethodEntity updatePaymentMethod(PaymentMethodEntity paymentMethod) {
+        return paymentMethodRepository.save(paymentMethod);
     }
 
     public List<OrderEntity> getUnpaidOrdersOf(CustomerEntity customer, EntrepreneurEntity entrepreneur) {

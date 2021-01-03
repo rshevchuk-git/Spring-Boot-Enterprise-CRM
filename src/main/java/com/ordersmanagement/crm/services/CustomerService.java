@@ -39,11 +39,28 @@ public class CustomerService {
         }
     }
 
+    public CustomerEntity updateCustomer(CustomerEntity customer) {
+        return customerRepository.save(customer);
+    }
+
     public Optional<CustomerEntity> saveCustomer(CustomerEntity newCustomer) {
-        if (customerRepository.existsByCustomerName(newCustomer.getCustomerName())) return Optional.empty();
-        if (customerRepository.existsByFirstPhoneAndFirstPhoneIsNotNull(newCustomer.getFirstPhone())) return Optional.empty();
-        if (customerRepository.existsBySecondPhoneAndSecondPhoneIsNotNull(newCustomer.getSecondPhone())) return Optional.empty();
-        if (customerRepository.existsByThirdPhoneAndThirdPhoneIsNotNull(newCustomer.getThirdPhone())) return Optional.empty();
+        if (customerRepository.existsByCustomerName(newCustomer.getCustomerName()))
+            return Optional.empty();
+        if (!newCustomer.getFirstPhone().isEmpty() &&
+                customerRepository.existsByFirstPhone(newCustomer.getFirstPhone()) &&
+                customerRepository.existsBySecondPhone(newCustomer.getFirstPhone()) &&
+                customerRepository.existsByThirdPhone(newCustomer.getFirstPhone()))
+            return Optional.empty();
+        if (!newCustomer.getSecondPhone().isEmpty() &&
+                customerRepository.existsByFirstPhone(newCustomer.getSecondPhone()) &&
+                customerRepository.existsBySecondPhone(newCustomer.getSecondPhone()) &&
+                customerRepository.existsByThirdPhone(newCustomer.getSecondPhone()))
+            return Optional.empty();
+        if (!newCustomer.getThirdPhone().isEmpty() &&
+                customerRepository.existsByFirstPhone(newCustomer.getThirdPhone()) &&
+                customerRepository.existsBySecondPhone(newCustomer.getThirdPhone()) &&
+                customerRepository.existsByThirdPhone(newCustomer.getThirdPhone()))
+            return Optional.empty();
         return Optional.of(customerRepository.save(newCustomer));
     }
 

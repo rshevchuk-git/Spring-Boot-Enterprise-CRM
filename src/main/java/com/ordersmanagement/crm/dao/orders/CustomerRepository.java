@@ -12,7 +12,7 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     @Override
     List<CustomerEntity> findAll(Predicate predicate);
     boolean existsByCustomerName(String name);
-    boolean existsByFirstPhoneAndFirstPhoneIsNotNull(String firstPhone);
-    boolean existsBySecondPhoneAndSecondPhoneIsNotNull(String secondPhone);
-    boolean existsByThirdPhoneAndThirdPhoneIsNotNull(String thirdPhone);
+    boolean existsByFirstPhone(String phone);
+    boolean existsBySecondPhone(String phone);
+    boolean existsByThirdPhone(String phone);
 }

@@ -35,7 +35,7 @@ public class CustomerEntity {
     private String payLog;
 
     @Column(name = "is_debtor")
-    private int isDebtor;
+    private boolean isDebtor;
 
     @Column(name = "customer_group")
     private String customerGroup;

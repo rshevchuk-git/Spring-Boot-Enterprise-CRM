@@ -26,12 +26,10 @@ public class PaymentController {
         return new ResponseEntity<>(paymentService.getAllPaymentMethods(), HttpStatus.OK);
     }
 
-    @PostMapping("/types/")
+    @PutMapping("/types/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<PaymentMethodEntity> savePaymentType(@RequestBody PaymentMethodEntity paymentType) {
-        return paymentService.savePaymentMethod(paymentType)
-                .map(savedPaymentMethod -> new ResponseEntity<>(savedPaymentMethod, HttpStatus.CREATED))
-                .orElseGet(()           -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+    public ResponseEntity<PaymentMethodEntity> updatePaymentType(@RequestBody PaymentMethodEntity paymentType) {
+        return new ResponseEntity<>(paymentService.updatePaymentMethod(paymentType), HttpStatus.OK);
     }
 
     @PostMapping(value = "/")
