@@ -22,7 +22,7 @@ public class CustomerExcelExporter {
         customers.sort(Comparator.comparing(CustomerEntity::getCustomerName));
 
         this.workbook = new XSSFWorkbook();
-        this.sheet = workbook.createSheet("Замовлення");
+        this.sheet = workbook.createSheet("Клієнти");
     }
 
     private void writeHeaderRow() {

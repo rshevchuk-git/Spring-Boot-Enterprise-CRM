@@ -13,6 +13,7 @@ import com.ordersmanagement.crm.services.OrderService;
 import com.ordersmanagement.crm.services.PaymentService;
 import com.ordersmanagement.crm.services.StatusService;
 import com.ordersmanagement.crm.utils.OrderExcelExporter;
+import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -76,12 +77,13 @@ public class OrderController {
                 paymentService.payFromCustomerBalance(updatedOrder);
             }
             if (updatedOrder.getPaySum() > updatedOrder.getFinalSum()) {
-                orderService.updateOrder(updatedOrder); // Save new 'finalSum' first to be skipped during re-payment
+                orderService.updateOrder(updatedOrder); // Save new 'finalSum' first, to be skipped during re-payment
                 paymentService.distributeOverpayment(updatedOrder, updatedOrder.getPaySum() - updatedOrder.getFinalSum());
             }
         } catch (OrderNotFoundException | CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+        updatedOrder.setPaySum(PaymentUtils.calculatePaymentSum(updatedOrder.getPayLog()));
         return new ResponseEntity<>(orderService.updateOrder(updatedOrder), HttpStatus.OK);
     }
 

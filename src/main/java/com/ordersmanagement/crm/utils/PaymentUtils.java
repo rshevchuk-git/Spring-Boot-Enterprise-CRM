@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
+import java.util.Arrays;
 
 public final class PaymentUtils {
 
@@ -49,5 +50,15 @@ public final class PaymentUtils {
                         .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
                         .toFormatter();
         return LocalDateTime.parse(log.substring(log.indexOf("та : ") + 5, log.indexOf(" Сум") - 1), DATE_FORMAT);
+    }
+
+    public static int calculatePaymentSum(String payLog) {
+        if ( payLog == null || payLog.trim().isEmpty()) return 0;
+
+        String[] payments = payLog.split("\\n");
+        if (payments.length > 0) {
+            return Arrays.stream(payments).map(PaymentUtils::getSumFromLog).reduce(0, Integer::sum);
+        }
+        return 0;
     }
 }

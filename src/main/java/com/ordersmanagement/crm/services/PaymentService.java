@@ -128,6 +128,7 @@ public class PaymentService {
 
     @Transactional
     public void distributeOverpayment(OrderEntity updatedOrder, int overpayment) throws CustomerNotFoundException {
+        if (overpayment <= 0) return;
         int paid = 0;
         while (paid < overpayment) {
             int   remainingPayment = overpayment - paid;

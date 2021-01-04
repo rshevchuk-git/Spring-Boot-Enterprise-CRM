@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,6 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService customerService;
-    private final CustomerRepository customerRepository;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
@@ -103,14 +103,25 @@ public class CustomerController {
         }
     }
 
-    @PostMapping(value = "/export", consumes="application/json", produces="application/json")
+    @PostMapping(value = "/export")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody CustomersWrapper customers) throws IOException {
         ByteArrayInputStream byteStream = new CustomerExcelExporter(customers.getCustomers()).export();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=список замовлень.xlsx");
-
+        headers.add("Content-Disposition", "attachment; filename=clients.xlsx");
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(byteStream));
+    }
+
+    @GetMapping(value = "/download/customers.xlsx")
+    public ResponseEntity<InputStreamResource> excelCustomersReport() throws IOException {
+        ByteArrayInputStream byteStream = new CustomerExcelExporter(customerService.getAllCustomers()).export();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(byteStream));
     }
 }
