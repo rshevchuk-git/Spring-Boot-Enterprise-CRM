@@ -16,6 +16,9 @@ public class OrderKindEntity {
     @Column(name = "order_kind_id")
     private int kindId;
 
+    @Column(name = "order_type_id")
+    private int typeId;
+
     @Column(name = "kind")
     private String kindName;
 

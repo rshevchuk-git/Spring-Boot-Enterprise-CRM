@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 public class IPAddressInterceptor implements HandlerInterceptor {
 
-    final List<String> allowedAddresses = List.of("195.114.145.25");
+    final List<String> allowedAddresses = List.of("194.29.60.95", "77.222.153.130");
 
     public boolean isAllowedAddress(String ip) {
         return allowedAddresses.contains(ip);

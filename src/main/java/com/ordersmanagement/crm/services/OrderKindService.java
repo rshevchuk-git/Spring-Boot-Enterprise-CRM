@@ -20,16 +20,8 @@ public class OrderKindService {
     public List<OrderKindEntity> getAllOrderKinds() {
         return orderKindRepository.findAll();
     }
-
-    public Optional<OrderKindEntity> saveOrderKind(OrderKindEntity newOrderKind) {
-        if (orderKindRepository.existsByKindName(newOrderKind.getKindName())) {
-            return Optional.empty();
-        } else {
-            return Optional.of(orderKindRepository.save(newOrderKind));
-        }
-    }
-
-    public OrderKindEntity updateOrderKind(OrderKindEntity newOrderKind) {
+    
+    public OrderKindEntity saveOrderKind(OrderKindEntity newOrderKind) {
         return orderKindRepository.save(newOrderKind);
     }
 
