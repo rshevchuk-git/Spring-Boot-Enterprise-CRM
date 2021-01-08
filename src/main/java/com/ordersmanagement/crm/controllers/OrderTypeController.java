@@ -2,6 +2,7 @@ package com.ordersmanagement.crm.controllers;
 
 
 import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
+import com.ordersmanagement.crm.services.AuthService;
 import com.ordersmanagement.crm.services.OrderTypeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,10 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 
 
@@ -23,22 +22,22 @@ import static java.util.stream.Collectors.toList;
 @RequestMapping("/api/order-types")
 public class OrderTypeController {
 
+    private final AuthService authService;
     private final OrderTypeService orderTypeService;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<OrderTypeEntity>> getAllTypes() {
-        Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        for (GrantedAuthority grantedAuthority : authorities) {
-            if ("ROLE_GROUNDFLOOR".equals(grantedAuthority.getAuthority())) {
-                List<OrderTypeEntity> types = orderTypeService.getAllOrderTypes()
-                        .stream()
-                        .filter(type -> type.getTypeName().equals("Сольвентний друк"))
-                        .collect(toList());
-                return new ResponseEntity<>(types, HttpStatus.OK);
-            }
+        List<OrderTypeEntity> orderTypes = orderTypeService.getAllOrderTypes();
+
+        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
+            orderTypes = orderTypes.stream()
+                    .filter(orderType -> orderTypeService.typeFilterByRole
+                            .getOrDefault(grantedAuthority.getAuthority(), (val) -> true)
+                            .apply(orderType))
+                    .collect(toList());
         }
-        return new ResponseEntity<>(orderTypeService.getAllOrderTypes(), HttpStatus.OK);
+        return new ResponseEntity<>(orderTypes, HttpStatus.OK);
     }
 
     @PostMapping("/")

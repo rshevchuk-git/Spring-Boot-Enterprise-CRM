@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.NoResultException;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AuthService {
 
-    private final AuthenticationManager authenticationManager;
-    private final EmployeeRepository employeeRepository;
     private final JwtUtils jwtUtils;
+    private final EmployeeRepository employeeRepository;
+    private final AuthenticationManager authenticationManager;
+
+    public Collection<? extends GrantedAuthority> getUserRoles() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+    }
 
     private Authentication setAuthentication(LoginForm credentials) {
         Authentication authentication = authenticationManager.authenticate(

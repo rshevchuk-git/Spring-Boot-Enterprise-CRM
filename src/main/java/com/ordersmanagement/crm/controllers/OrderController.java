@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
@@ -25,15 +26,19 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    private final AuthService authService;
     private final OrderService orderService;
     private final StatusService statusService;
     private final PaymentService paymentService;
     private final CustomerService customerService;
+    private final OrderTypeService orderTypeService;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
@@ -99,6 +104,13 @@ public class OrderController {
                                           @RequestBody SortForm selections) {
         List<OrderEntity> filteredList = selections.isEmptyForm() ? orderService.getRecentOrders()
                                                                   : orderService.getSortedOrders(selections);
+        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
+            filteredList = filteredList.stream()
+                    .filter(orderEntity -> orderTypeService.typeFilterByRole
+                            .getOrDefault(grantedAuthority.getAuthority(), (val) -> true)
+                            .apply(orderEntity.getOrderType()))
+                    .collect(toList());
+        }
         if (showStatistics) {
             Summary response = orderService.summarize(filteredList, selections.getSelectedReceiver(), selections.getSelectedCustomer());
             return new ResponseEntity<>(response, HttpStatus.OK);
