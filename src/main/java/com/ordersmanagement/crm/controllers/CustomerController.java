@@ -116,7 +116,6 @@ public class CustomerController {
     @GetMapping(value = "/download/customers.xlsx")
     public ResponseEntity<InputStreamResource> excelCustomersReport() throws IOException {
         ByteArrayInputStream byteStream = new CustomerExcelExporter(customerService.getAllCustomers()).export();
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
         return ResponseEntity

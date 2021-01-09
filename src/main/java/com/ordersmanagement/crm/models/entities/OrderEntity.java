@@ -3,7 +3,6 @@ package com.ordersmanagement.crm.models.entities;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -90,7 +89,7 @@ public class OrderEntity {
     @Column(name = "pay_log")
     private String payLog = "";
 
-    public void addPayment(String paymentLog) {
+    public void addPayments(String paymentLog) {
         Arrays.stream(paymentLog.split("\\n")).forEach(payment -> {
             this.payDate = PaymentUtils.getLocalDateTimeFromLog(payment);
             this.paySum += PaymentUtils.getSumFromLog(payment);

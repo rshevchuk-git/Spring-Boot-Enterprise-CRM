@@ -23,6 +23,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,6 +60,8 @@ public class OrderController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> addNewOrder(@Valid @RequestBody OrderEntity newOrder) {
+        System.out.println(" New Order [Europe/Kiev] : " + LocalDateTime.now(ZoneId.of("Europe/Kiev")) + " Sum: " + newOrder.getFinalSum());
+        System.out.println(" New Order [Local] : " + LocalDateTime.now() + " Sum: " + newOrder.getFinalSum());
         try {
             paymentService.payFromCustomerBalance(newOrder);
         } catch (CustomerNotFoundException e) {
@@ -137,6 +141,9 @@ public class OrderController {
         ByteArrayInputStream byteStream = new OrderExcelExporter(orders.getOrders()).export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=список замовлень.xlsx");
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(byteStream));
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(new InputStreamResource(byteStream));
     }
 }

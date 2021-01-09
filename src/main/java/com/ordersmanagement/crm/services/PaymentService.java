@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,12 +52,11 @@ public class PaymentService {
 
         for (OrderEntity currentOrder : unpaidOrders) {
             int requiredPayment = currentOrder.getFinalSum() - currentOrder.getPaySum();
-            LocalDateTime paymentDate = payment.getPaymentDate();
             if (remainingMoney >= requiredPayment) {
-                currentOrder.addPayment(PaymentUtils.formatPayLog(paymentDate, requiredPayment, payment.getReceiver()));
+                currentOrder.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), requiredPayment, payment.getReceiver()));
                 remainingMoney -= requiredPayment;
             } else if (remainingMoney != 0) {
-                currentOrder.addPayment(PaymentUtils.formatPayLog(paymentDate, remainingMoney, payment.getReceiver()));
+                currentOrder.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), remainingMoney, payment.getReceiver()));
                 remainingMoney = 0;
             }
         }
@@ -75,18 +73,18 @@ public class PaymentService {
 
         int remainingUnpaid = order.getFinalSum() - order.getPaySum();
         if (remainingUnpaid >= customer.getMoney()) {
-            order.addPayment(customer.getPayLog());
+            order.addPayments(customer.getPayLog());
             customer.removeAllPayments();
         } else {
             List<String> changedLogs = new ArrayList<>();
             for (String paymentLog : customer.getPayLog().split("\\n")) {
                 int paymentSum  = PaymentUtils.getSumFromLog(paymentLog);
                 if (remainingUnpaid >= paymentSum) {
-                    order.addPayment(paymentLog);
+                    order.addPayments(paymentLog);
                     customer.setMoney(customer.getMoney() - paymentSum);
                     remainingUnpaid -= paymentSum;
                 } else if (order.getPaySum() != order.getFinalSum()) {
-                    order.addPayment(PaymentUtils.replaceSumInLog(paymentLog, remainingUnpaid));
+                    order.addPayments(PaymentUtils.replaceSumInLog(paymentLog, remainingUnpaid));
                     customer.setMoney(customer.getMoney() - remainingUnpaid);
                     changedLogs.add(PaymentUtils.replaceSumInLog(paymentLog, paymentSum - remainingUnpaid));
                     remainingUnpaid = 0;
