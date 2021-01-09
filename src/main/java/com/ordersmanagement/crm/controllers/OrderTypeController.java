@@ -1,43 +1,27 @@
 package com.ordersmanagement.crm.controllers;
 
-
 import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
-import com.ordersmanagement.crm.services.AuthService;
 import com.ordersmanagement.crm.services.OrderTypeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
-import static java.util.stream.Collectors.toList;
 
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/order-types")
 public class OrderTypeController {
 
-    private final AuthService authService;
     private final OrderTypeService orderTypeService;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<OrderTypeEntity>> getAllTypes() {
-        List<OrderTypeEntity> orderTypes = orderTypeService.getAllOrderTypes();
-
-        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
-            orderTypes = orderTypes.stream()
-                    .filter(orderType -> orderTypeService.typeFilterByRole
-                            .getOrDefault(grantedAuthority.getAuthority(), (val) -> true)
-                            .apply(orderType))
-                    .collect(toList());
-        }
-        return new ResponseEntity<>(orderTypes, HttpStatus.OK);
+        return new ResponseEntity<>(orderTypeService.getAllOrderTypes(), HttpStatus.OK);
     }
 
     @PostMapping("/")

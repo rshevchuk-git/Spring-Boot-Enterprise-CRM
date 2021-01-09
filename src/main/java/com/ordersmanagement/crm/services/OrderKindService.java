@@ -8,14 +8,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class OrderKindService {
 
-    private final OrderKindRepository orderKindRepository;
     private final OrderRepository orderRepository;
+    private final OrderKindRepository orderKindRepository;
 
     public List<OrderKindEntity> getAllOrderKinds() {
         return orderKindRepository.findAll();

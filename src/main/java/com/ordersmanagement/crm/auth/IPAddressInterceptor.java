@@ -1,43 +1,37 @@
 package com.ordersmanagement.crm.auth;
-import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
 import com.ordersmanagement.crm.services.AuthService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
 import java.util.List;
 
 @Component
+@AllArgsConstructor
 public class IPAddressInterceptor implements HandlerInterceptor {
 
-    final List<String> allowedAddresses = List.of("194.29.60.95", "77.222.153.130");
+    final private List<String> allowedAddresses = List.of("194.29.60.95", "77.222.153.130");
 
-    public boolean isAllowedAddress(String ip) {
-        return allowedAddresses.contains(ip);
-    }
+    final private AuthService authService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        for (GrantedAuthority grantedAuthority : authorities) {
-            if ("ROLE_ADMIN".equals(grantedAuthority.getAuthority())) {
+        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
+            if (ERole.ROLE_ADMIN.toString().equals(grantedAuthority.getAuthority())) {
                 return true;
             }
         }
-        String ipAddress = request.getHeader("x-forwarded-for");
-        if(ipAddress == null) {
-            ipAddress = request.getRemoteAddr();
+
+        String clientAddress = request.getHeader("x-forwarded-for");
+        if(clientAddress == null) {
+            clientAddress = request.getRemoteAddr();
         }
-        String clientAddress = ipAddress.contains(",") ? ipAddress.split(",")[0] : ipAddress;
-        if(isAllowedAddress(clientAddress)) {
+        clientAddress = clientAddress.contains(",") ? clientAddress.split(",")[0] : clientAddress;
+
+        if(allowedAddresses.contains(clientAddress)) {
             System.out.println("[SUCCESS] Trying to connect from: " + clientAddress);
             return true;
         } else {

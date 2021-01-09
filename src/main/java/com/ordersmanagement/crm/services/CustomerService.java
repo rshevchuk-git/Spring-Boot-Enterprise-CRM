@@ -1,7 +1,6 @@
 package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.orders.CustomerRepository;
-import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.models.entities.QCustomerEntity;
 import com.querydsl.core.BooleanBuilder;
@@ -24,10 +23,6 @@ public class CustomerService {
 
     public boolean existsById(Integer customerId) {
         return customerRepository.existsById(customerId);
-    }
-
-    public CustomerEntity tryGetCustomerById(Integer customerId) throws CustomerNotFoundException {
-        return customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
     }
 
     public boolean deleteCustomer(Integer customerID){

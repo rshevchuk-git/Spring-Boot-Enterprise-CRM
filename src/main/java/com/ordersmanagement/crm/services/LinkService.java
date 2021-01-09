@@ -19,7 +19,6 @@ public class LinkService {
     public List<CELinkEntity> getAllCELinks() {
         return ceLinkRepository.findAll();
     }
-
     public List<CPLinkEntity> getAllCPLinks() {
         return cpLinkRepository.findAll();
     }
@@ -27,7 +26,6 @@ public class LinkService {
     public CELinkEntity saveCELink(CELinkEntity ceLink) {
         return ceLinkRepository.save(ceLink);
     }
-
     public CPLinkEntity saveCPLink(CPLinkEntity cpLink) {
         return cpLinkRepository.save(cpLink);
     }

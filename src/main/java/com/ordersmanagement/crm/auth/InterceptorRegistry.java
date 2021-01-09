@@ -17,6 +17,14 @@ public class InterceptorRegistry implements WebMvcConfigurer {
     @Override
     public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
         registry.addInterceptor(ipAddressInterceptor).addPathPatterns(List.of(
-                "/api/orders/**", "/api/ce-links/**", "/api/cp-links/**", "/api/order-types/**", "/api/customers/**", "/api/entrepreneurs/**", "/api/order-kinds/**", "/api/payments/**", "/api/statuses/**"));
+                "/api/orders/**",
+                "/api/ce-links/**",
+                "/api/cp-links/**",
+                "/api/order-types/**",
+                "/api/customers/**",
+                "/api/entrepreneurs/**",
+                "/api/order-kinds/**",
+                "/api/payments/**",
+                "/api/statuses/**"));
     }
 }
