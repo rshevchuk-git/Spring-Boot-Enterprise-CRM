@@ -21,8 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 
@@ -49,8 +47,6 @@ public class OrderController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> addNewOrder(@Valid @RequestBody OrderEntity newOrder) {
-        System.out.println(" New Order [Europe/Kiev] : " + LocalDateTime.now(ZoneId.of("Europe/Kiev")) + " Sum: " + newOrder.getFinalSum());
-        System.out.println(" New Order [Local] : " + LocalDateTime.now() + " Sum: " + newOrder.getFinalSum());
         try {
             paymentService.payFromCustomerBalance(newOrder);
         } catch (CustomerNotFoundException e) {
@@ -113,7 +109,7 @@ public class OrderController {
     }
 
     @PostMapping(value = "/export", consumes="application/json", produces="application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ORDERS_EXPORTER')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody OrdersWrapper orders) throws IOException {
         ByteArrayInputStream byteStream = new OrderExcelExporter(orders.getOrders()).export();
         HttpHeaders headers = new HttpHeaders();

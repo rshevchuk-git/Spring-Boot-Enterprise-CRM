@@ -2,7 +2,6 @@ package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.orders.EmployeeRepository;
 import com.ordersmanagement.crm.models.entities.EmployeeEntity;
-import com.ordersmanagement.crm.models.entities.User32;
 import com.ordersmanagement.crm.models.forms.LoginForm;
 import com.ordersmanagement.crm.models.response.JwtResponse;
 import com.ordersmanagement.crm.utils.JwtUtils;
@@ -14,7 +13,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.NoResultException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
