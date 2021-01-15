@@ -1,5 +1,8 @@
 package com.ordersmanagement.crm.controllers;
 
+import com.ordersmanagement.crm.dao.orders.CustomerRepository;
+import com.ordersmanagement.crm.dao.orders.EntrepreneurRepository;
+import com.ordersmanagement.crm.dao.orders.OrderRepository;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
 import com.ordersmanagement.crm.models.entities.StatusEntity;
@@ -31,12 +34,6 @@ public class OrderController {
 
     private final OrderService orderService;
     private final PaymentService paymentService;
-
-//    @GetMapping("/")
-//    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-//    public ResponseEntity<List<OrderEntity>> getRecentOrders() {
-//        return new ResponseEntity<>(orderService.getRecentOrders(), HttpStatus.OK);
-//    }
 
     @GetMapping("/{customer_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")

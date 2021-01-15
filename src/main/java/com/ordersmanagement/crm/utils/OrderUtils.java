@@ -25,7 +25,7 @@ public final class OrderUtils {
 
     public static int totalOrdersPaid(List<OrderEntity> orders, String receiver) {
         return orders.stream().reduce(0, (sum, order) -> {
-            if (!receiver.isEmpty()) {
+            if (receiver != null && !receiver.isEmpty()) {
                 int paymentSum = Arrays.stream(order.getPayLog().split("\n"))
                         .filter(payment -> payment.contains(receiver))
                         .reduce(0, (preVal, log) -> preVal + Integer.parseInt(log.substring(log.indexOf("ма : ") + 5, log.indexOf(" Отр") - 1)), Integer::sum);

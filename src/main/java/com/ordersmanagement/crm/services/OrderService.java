@@ -28,14 +28,18 @@ public class OrderService {
     private final CustomerService customerService;
     private final OrderTypeService orderTypeService;
     private final OrderRepository orderRepository;
-    private final OrderRepositoryCustom customOrderRepository;
 
     public List<OrderEntity> getRecentOrders() {
-        return customOrderRepository.getRecentOrders();
+        LocalDateTime dayBefore = LocalDateTime.now(ZoneId.of("Europe/Kiev")).minusDays(2);
+        return orderRepository.getOrdersStartingFrom(dayBefore);
+    }
+
+    public List<OrderEntity> getUnpaidOrdersOf(CustomerEntity customer, EntrepreneurEntity entrepreneur) {
+        return orderRepository.getUnpaidOrdersOf(customer, entrepreneur);
     }
 
     public List<OrderEntity> getCustomerOrders(Integer customerId) {
-        return customOrderRepository.getOrdersMadeBy(customerId);
+        return orderRepository.getOrdersMadeBy(customerId);
     }
 
     public Optional<OrderEntity> getOrderById(Integer id) {
@@ -105,7 +109,7 @@ public class OrderService {
         return filterAllowedOrdersForRoles(sortedOrders);
     }
 
-    public List<OrderEntity> getOrdersBySelections(BooleanBuilder where) {
+    private List<OrderEntity> getOrdersBySelections(BooleanBuilder where) {
         if(where.getValue() == null) {
             return getRecentOrders();
         } else {
@@ -113,7 +117,7 @@ public class OrderService {
         }
     }
 
-    public List<OrderEntity> filterAllowedOrdersForRoles(List<OrderEntity> orderList) {
+    private List<OrderEntity> filterAllowedOrdersForRoles(List<OrderEntity> orderList) {
         for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
             orderList = orderList.stream()
                     .filter(orderEntity -> orderTypeService.typeFilterByRole

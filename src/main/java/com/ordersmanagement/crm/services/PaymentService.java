@@ -4,7 +4,6 @@ import com.ordersmanagement.crm.dao.orders.CustomerRepository;
 import com.ordersmanagement.crm.dao.orders.PaymentMethodRepository;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
-import com.ordersmanagement.crm.models.entities.EntrepreneurEntity;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import com.ordersmanagement.crm.models.entities.PaymentMethodEntity;
 import com.ordersmanagement.crm.models.forms.PaymentForm;
@@ -12,9 +11,6 @@ import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,8 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentService {
 
-    @PersistenceContext
-    private EntityManager ordersEntityManager;
     private final OrderService orderService;
     private final CustomerRepository customerRepository;
     private final PaymentMethodRepository paymentMethodRepository;
@@ -38,16 +32,9 @@ public class PaymentService {
         return paymentMethodRepository.save(paymentMethod);
     }
 
-    public List<OrderEntity> getUnpaidOrdersOf(CustomerEntity customer, EntrepreneurEntity entrepreneur) {
-        TypedQuery<OrderEntity> unpaidOrdersQuery = ordersEntityManager.createQuery("from OrderEntity where customer = :customerName and (:entrepreneurName is null or entrepreneur = :entrepreneurName) and paySum < finalSum order by id asc", OrderEntity.class);
-        unpaidOrdersQuery.setParameter("entrepreneurName", entrepreneur);
-        unpaidOrdersQuery.setParameter("customerName", customer);
-        return unpaidOrdersQuery.getResultList();
-    }
-
     @Transactional
     public void makePayment(PaymentForm payment) throws CustomerNotFoundException {
-        List<OrderEntity> unpaidOrders = getUnpaidOrdersOf(payment.getCustomer(), payment.getEntrepreneur());
+        List<OrderEntity> unpaidOrders = orderService.getUnpaidOrdersOf(payment.getCustomer(), payment.getEntrepreneur());
         int remainingMoney = PaymentUtils.calculateOperatingSum(payment.getSum(), payment.getPercentage());
 
         for (OrderEntity currentOrder : unpaidOrders) {

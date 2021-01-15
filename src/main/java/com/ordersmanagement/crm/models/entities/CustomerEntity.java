@@ -1,6 +1,5 @@
 package com.ordersmanagement.crm.models.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;

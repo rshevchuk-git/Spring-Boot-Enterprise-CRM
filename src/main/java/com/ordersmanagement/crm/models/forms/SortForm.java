@@ -19,20 +19,4 @@ public class SortForm {
     private OrderTypeEntity orderType;
     private String receiver;
     private String details;
-
-//    public boolean isEmptyForm() {
-//        Field[] fields = this.getClass().getDeclaredFields();
-//        for (Field f : fields) {
-//            try {
-//                Object value = f.get(this);
-//                if ((value instanceof String && ((String) value).trim().equals("")) ||  value != null) {
-//                    return false;
-//                }
-//            }
-//            catch (IllegalArgumentException | IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return true;
-//    }
 }

@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.auth;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -10,6 +11,7 @@ public class InterceptorRegistry implements WebMvcConfigurer {
 
     private final IPAddressInterceptor ipAddressInterceptor;
 
+    @Autowired
     public InterceptorRegistry(IPAddressInterceptor ipAddressInterceptor) {
         this.ipAddressInterceptor = ipAddressInterceptor;
     }

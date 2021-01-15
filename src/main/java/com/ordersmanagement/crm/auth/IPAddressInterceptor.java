@@ -1,6 +1,7 @@
 package com.ordersmanagement.crm.auth;
 import com.ordersmanagement.crm.services.AuthService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -11,13 +12,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Component
-@AllArgsConstructor
 public class IPAddressInterceptor implements HandlerInterceptor {
 
     @Value(value = "${allowed.addresses}")
-    final private List<String> allowedAddresses;
+    private List<String> allowedAddresses;
 
-    final private AuthService authService;
+    @Autowired
+    private AuthService authService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
