@@ -3,11 +3,13 @@ package com.ordersmanagement.crm.models.response;
 import com.ordersmanagement.crm.models.entities.EmployeeEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class JwtResponse {
     final private String type = "Bearer";
     private String token;

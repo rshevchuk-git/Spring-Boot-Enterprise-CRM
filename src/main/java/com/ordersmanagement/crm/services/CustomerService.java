@@ -2,8 +2,7 @@ package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.orders.CustomerRepository;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
-import com.ordersmanagement.crm.models.entities.QCustomerEntity;
-import com.querydsl.core.BooleanBuilder;
+import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +24,10 @@ public class CustomerService {
         return customerRepository.existsById(customerId);
     }
 
+    public CustomerEntity updateCustomer(CustomerEntity customer) {
+        return customerRepository.save(customer);
+    }
+
     public boolean deleteCustomer(Integer customerID){
         if(existsById(customerID)) {
             customerRepository.deleteById((customerID));
@@ -32,10 +35,6 @@ public class CustomerService {
         } else {
             return false;
         }
-    }
-
-    public CustomerEntity updateCustomer(CustomerEntity customer) {
-        return customerRepository.save(customer);
     }
 
     public Optional<CustomerEntity> saveCustomer(CustomerEntity newCustomer) {
@@ -59,20 +58,13 @@ public class CustomerService {
         return Optional.of(customerRepository.save(newCustomer));
     }
 
-    public int paymentsOnCustomerBalance(String receiver, CustomerEntity customer){
-        QCustomerEntity customerQuery = QCustomerEntity.customerEntity;
-        BooleanBuilder where = new BooleanBuilder();
-
-        where.and(customerQuery.payLog.contains(receiver));
-        if (customer != null) where.and(customerQuery.customerId.eq(customer.getCustomerId()));
-
-        return customerRepository.findAll(where)
+    public int paidOnCustomerBalance(Integer customerId, String receiver){
+        return customerRepository.findAllByCustomerIdAndPayLogContaining(customerId, receiver)
                 .stream()
                 .map(CustomerEntity::getPayLog)
-                .filter(log -> log.contains(receiver))
                 .map(log -> log.split("\n"))
                 .flatMap(Arrays::stream)
                 .filter(log -> log.contains(receiver))
-                .reduce(0, (preVal, log) -> preVal + Integer.parseInt(log.substring(log.indexOf("ма : ") + 5, log.indexOf(" Отр") - 1)), Integer::sum);
+                .reduce(0, (currentVal, log) -> currentVal + PaymentUtils.getSumFromLog(log), Integer::sum);
     }
 }

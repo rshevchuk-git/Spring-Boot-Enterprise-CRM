@@ -1,8 +1,5 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.dao.orders.CustomerRepository;
-import com.ordersmanagement.crm.dao.orders.EntrepreneurRepository;
-import com.ordersmanagement.crm.dao.orders.OrderRepository;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
 import com.ordersmanagement.crm.models.entities.StatusEntity;
@@ -38,7 +35,8 @@ public class OrderController {
     @GetMapping("/{customer_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
     public ResponseEntity<List<OrderEntity>> getCustomerOrders(@PathVariable("customer_id") Integer customerId) {
-        return new ResponseEntity<>(orderService.getCustomerOrders(customerId), HttpStatus.OK);
+        List<OrderEntity> customerOrders = orderService.getCustomerOrders(customerId);
+        return new ResponseEntity<>(customerOrders, HttpStatus.OK);
     }
 
     @PostMapping("/")
@@ -49,28 +47,30 @@ public class OrderController {
         } catch (CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(orderService.saveNewOrder(newOrder), HttpStatus.CREATED);
+        OrderEntity savedOrder = orderService.saveNewOrder(newOrder);
+        return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderEntity updatedOrder) {
+    public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderEntity changedOrder) {
         try {
-            if (orderService.isCustomerChanged(updatedOrder)) {
-                paymentService.removePaymentsFrom(updatedOrder);
-                paymentService.payFromCustomerBalance(updatedOrder);
+            if (orderService.isCustomerChanged(changedOrder)) {
+                paymentService.removePaymentsFrom(changedOrder);
+                paymentService.payFromCustomerBalance(changedOrder);
             }
-            if (updatedOrder.getPaySum() < updatedOrder.getFinalSum()) {
-                paymentService.payFromCustomerBalance(updatedOrder);
+            if (changedOrder.getPaySum() < changedOrder.getFinalSum()) {
+                paymentService.payFromCustomerBalance(changedOrder);
             }
-            if (updatedOrder.getPaySum() > updatedOrder.getFinalSum()) {
-                orderService.updateOrder(updatedOrder); // Save new 'finalSum' first, to be skipped during re-payment
-                paymentService.distributeOverpayment(updatedOrder, updatedOrder.getPaySum() - updatedOrder.getFinalSum());
+            if (changedOrder.getPaySum() > changedOrder.getFinalSum()) {
+                orderService.updateOrder(changedOrder); // Save new 'finalSum' first, to be skipped during re-payment
+                paymentService.distributeOverpayment(changedOrder, changedOrder.getPaySum() - changedOrder.getFinalSum());
             }
         } catch (OrderNotFoundException | CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(orderService.updateOrder(updatedOrder), HttpStatus.OK);
+        OrderEntity updatedOrder = orderService.updateOrder(changedOrder);
+        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -101,7 +101,8 @@ public class OrderController {
                                                     @PathVariable(name = "status_id") StatusEntity status) {
         return orderService.getOrderById(orderId).map((order -> {
             order.setStatus(status);
-            return new ResponseEntity<>(orderService.updateOrder(order), HttpStatus.OK);
+            OrderEntity updatedOrder = orderService.updateOrder(order);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         })).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

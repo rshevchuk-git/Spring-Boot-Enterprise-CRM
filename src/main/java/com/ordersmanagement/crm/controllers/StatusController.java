@@ -22,6 +22,7 @@ public class StatusController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
     public ResponseEntity<List<StatusEntity>> getAllStatuses() {
-        return new ResponseEntity<>(statusService.getAllStatuses(), HttpStatus.OK);
+        List<StatusEntity> statusList = statusService.getAllStatuses();
+        return new ResponseEntity<>(statusList, HttpStatus.OK);
     }
 }

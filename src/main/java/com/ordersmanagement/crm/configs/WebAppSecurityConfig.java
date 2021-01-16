@@ -1,8 +1,9 @@
 package com.ordersmanagement.crm.configs;
 
 import com.ordersmanagement.crm.auth.AuthEntryPointJwt;
-import com.ordersmanagement.crm.filter.AuthTokenFilter;
+import com.ordersmanagement.crm.auth.AuthTokenFilter;
 import com.ordersmanagement.crm.services.UserDetailsServiceImpl;
+import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,16 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebAppSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    final UserDetailsServiceImpl userDetailsService;
     final AuthEntryPointJwt unauthorizedHandler;
-
-    public WebAppSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
-        this.userDetailsService = userDetailsService;
-        this.unauthorizedHandler = unauthorizedHandler;
-    }
+    final UserDetailsServiceImpl userDetailsService;
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {

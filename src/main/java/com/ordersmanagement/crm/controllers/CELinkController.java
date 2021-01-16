@@ -26,7 +26,8 @@ public class CELinkController {
     @GetMapping(value = "/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<CELinkEntity>> getAllCELinks() {
-        return new ResponseEntity<>(linkService.getAllCELinks(), HttpStatus.OK);
+        List<CELinkEntity> ceLinksList = linkService.getAllCELinks();
+        return new ResponseEntity<>(ceLinksList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{customer_id}/{entrepreneur_id}")
@@ -35,6 +36,7 @@ public class CELinkController {
                                                    @PathVariable(name = "entrepreneur_id") EntrepreneurEntity entrepreneur) {
         CEKey key = new CEKey(customer.getCustomerId(), entrepreneur.getEntrepreneurId());
         CELinkEntity newLink = new CELinkEntity(key, customer, entrepreneur);
-        return new ResponseEntity<>(linkService.saveCELink(newLink), HttpStatus.OK);
+        CELinkEntity savedLink = linkService.saveCELink(newLink);
+        return new ResponseEntity<>(savedLink, HttpStatus.OK);
     }
 }

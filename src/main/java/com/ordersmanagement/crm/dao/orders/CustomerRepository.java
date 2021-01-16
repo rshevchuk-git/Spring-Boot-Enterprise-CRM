@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Integer>, QuerydslPredicateExecutor<CustomerEntity> {
     @Override
     List<CustomerEntity> findAll(Predicate predicate);
+    List<CustomerEntity> findAllByCustomerIdAndPayLogContaining(Integer customerId, String receiver);
     boolean existsByCustomerName(String name);
     boolean existsByFirstPhone(String phone);
     boolean existsBySecondPhone(String phone);

@@ -20,13 +20,15 @@ public class OrderKindController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<OrderKindEntity>> getAllOrderKinds() {
-        return new ResponseEntity<>(orderKindService.getAllOrderKinds(), HttpStatus.OK);
+        List<OrderKindEntity> orderKindList = orderKindService.getAllOrderKinds();
+        return new ResponseEntity<>(orderKindList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/", method = {RequestMethod.POST, RequestMethod.PUT})
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<OrderKindEntity> updateOrderKind(@RequestBody OrderKindEntity orderKind) {
-        return new ResponseEntity<>(orderKindService.saveOrderKind(orderKind), HttpStatus.OK);
+        OrderKindEntity updatedOrderKind = orderKindService.saveOrderKind(orderKind);
+        return new ResponseEntity<>(updatedOrderKind, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -44,6 +46,7 @@ public class OrderKindController {
     public ResponseEntity<?> changeOrderKinds(@PathVariable(name = "replace_id") OrderKindEntity replaceKind,
                                               @PathVariable(name = "new_id")     OrderKindEntity newKind) {
         orderKindService.replaceOrderKinds(replaceKind, newKind);
+        orderKindService.deleteOrderKind(replaceKind.getKindId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

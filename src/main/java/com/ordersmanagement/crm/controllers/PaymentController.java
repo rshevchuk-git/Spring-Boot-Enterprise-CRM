@@ -23,13 +23,15 @@ public class PaymentController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<PaymentMethodEntity>> getAllPaymentTypes() {
-        return new ResponseEntity<>(paymentService.getAllPaymentMethods(), HttpStatus.OK);
+        List<PaymentMethodEntity> paymentMethodList = paymentService.getAllPaymentMethods();
+        return new ResponseEntity<>(paymentMethodList, HttpStatus.OK);
     }
 
     @PutMapping("/types/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<PaymentMethodEntity> updatePaymentType(@RequestBody PaymentMethodEntity paymentType) {
-        return new ResponseEntity<>(paymentService.updatePaymentMethod(paymentType), HttpStatus.OK);
+        PaymentMethodEntity updatedPaymentMethod = paymentService.updatePaymentMethod(paymentType);
+        return new ResponseEntity<>(updatedPaymentMethod, HttpStatus.OK);
     }
 
     @PostMapping(value = "/")

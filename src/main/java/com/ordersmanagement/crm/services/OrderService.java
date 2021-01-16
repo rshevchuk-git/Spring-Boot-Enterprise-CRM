@@ -10,7 +10,6 @@ import com.ordersmanagement.crm.utils.PaymentUtils;
 import com.querydsl.core.BooleanBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,16 +17,14 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
 public class OrderService {
 
-    private final AuthService authService;
     private final CustomerService customerService;
-    private final OrderTypeService orderTypeService;
     private final OrderRepository orderRepository;
+    private final TypeFilterService typeFilterService;
 
     public List<OrderEntity> getRecentOrders() {
         LocalDateTime dayBefore = LocalDateTime.now(ZoneId.of("Europe/Kiev")).minusDays(2);
@@ -57,7 +54,9 @@ public class OrderService {
         newOrder.setM2(OrderUtils.calculateM2(newOrder));
         newOrder.setPaySum(PaymentUtils.calculatePaymentSum(newOrder.getPayLog()));
         if (newOrder.getPaySum() > 0) {
-            newOrder.setPayDate(PaymentUtils.getLocalDateTimeFromLog(PaymentUtils.getLastPayment(newOrder.getPayLog())));
+            String lastPayment = PaymentUtils.getLastPayment(newOrder.getPayLog());
+            LocalDateTime lastPaymentDate = PaymentUtils.getLocalDateTimeFromLog(lastPayment);
+            newOrder.setPayDate(lastPaymentDate);
         }
         return orderRepository.save(newOrder);
     }
@@ -83,7 +82,7 @@ public class OrderService {
         int   paid = OrderUtils.totalOrdersPaid(orders, paymentMethod);
 
         if (!paymentMethod.isEmpty()) {
-            paid += customerService.paymentsOnCustomerBalance(paymentMethod, customer);
+            paid += customerService.paidOnCustomerBalance(customer.getCustomerId(), paymentMethod);
         }
         return new Summary(orders, paid, fees, amount, m2);
     }
@@ -106,7 +105,7 @@ public class OrderService {
         if(sortForm.getDetails() != null && !sortForm.getDetails().trim().equals("")) where.and(order.comment.contains(sortForm.getDetails()));
 
         List<OrderEntity> sortedOrders = getOrdersBySelections(where);
-        return filterAllowedOrdersForRoles(sortedOrders);
+        return typeFilterService.filterOrdersForRoles(sortedOrders);
     }
 
     private List<OrderEntity> getOrdersBySelections(BooleanBuilder where) {
@@ -115,16 +114,5 @@ public class OrderService {
         } else {
             return orderRepository.findAll(where, Sort.by(Sort.Direction.DESC, "orderId"));
         }
-    }
-
-    private List<OrderEntity> filterAllowedOrdersForRoles(List<OrderEntity> orderList) {
-        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
-            orderList = orderList.stream()
-                    .filter(orderEntity -> orderTypeService.typeFilterByRole
-                            .getOrDefault(grantedAuthority.getAuthority(), (val) -> true)
-                            .apply(orderEntity.getOrderType()))
-                    .collect(toList());
-        }
-        return orderList;
     }
 }

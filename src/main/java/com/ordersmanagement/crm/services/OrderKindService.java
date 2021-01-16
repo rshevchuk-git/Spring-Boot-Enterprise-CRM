@@ -34,10 +34,8 @@ public class OrderKindService {
     }
 
     public void replaceOrderKinds(OrderKindEntity replaceKind, OrderKindEntity newKind) {
-        List<OrderEntity> byOrderKind = orderRepository.findByOrderKind(replaceKind);
-        byOrderKind.forEach(order -> order.setOrderKind(newKind));
-        orderRepository.saveAll(byOrderKind);
-
-        deleteOrderKind(replaceKind.getKindId());
+        List<OrderEntity> ordersByKind = orderRepository.findByOrderKind(replaceKind);
+        ordersByKind.forEach(order -> order.setOrderKind(newKind));
+        orderRepository.saveAll(ordersByKind);
     }
 }

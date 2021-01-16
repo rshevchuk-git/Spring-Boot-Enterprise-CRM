@@ -22,6 +22,7 @@ public class EntrepreneurController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<EntrepreneurEntity>> getAllEntrepreneurs() {
-        return new ResponseEntity<>(entrepreneurService.getAllEntrepreneurs(), HttpStatus.OK);
+        List<EntrepreneurEntity> entrepreneurList = entrepreneurService.getAllEntrepreneurs();
+        return new ResponseEntity<>(entrepreneurList, HttpStatus.OK);
     }
 }

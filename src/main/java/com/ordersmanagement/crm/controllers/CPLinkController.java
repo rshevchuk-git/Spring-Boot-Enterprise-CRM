@@ -26,7 +26,8 @@ public class CPLinkController {
     @GetMapping(value = "/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<CPLinkEntity>> getPriceLinks() {
-        return new ResponseEntity<>(linkService.getAllCPLinks(), HttpStatus.OK);
+        List<CPLinkEntity> cpLinkList = linkService.getAllCPLinks();
+        return new ResponseEntity<>(cpLinkList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{customer_id}/{kind_id}/{price}")
@@ -36,6 +37,7 @@ public class CPLinkController {
                                                       @PathVariable(name = "price")       Double price) {
         CPLinkKey key = new CPLinkKey(customer.getCustomerId(), kind.getKindId());
         CPLinkEntity newLink = new CPLinkEntity(key, customer, kind, price);
-        return new ResponseEntity<>(linkService.saveCPLink(newLink), HttpStatus.OK);
+        CPLinkEntity savedLink = linkService.saveCPLink(newLink);
+        return new ResponseEntity<>(savedLink, HttpStatus.OK);
     }
 }

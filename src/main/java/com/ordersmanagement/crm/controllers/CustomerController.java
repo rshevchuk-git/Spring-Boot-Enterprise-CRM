@@ -27,7 +27,8 @@ public class CustomerController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<CustomerEntity>> getAllCustomers() {
-        return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
+        List<CustomerEntity> customerList = customerService.getAllCustomers();
+        return new ResponseEntity<>(customerList, HttpStatus.OK);
     }
 
     @PostMapping("/")
@@ -41,7 +42,8 @@ public class CustomerController {
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
-        return new ResponseEntity<>(customerService.updateCustomer(newCustomer), HttpStatus.OK);
+        CustomerEntity updatedCustomer = customerService.updateCustomer(newCustomer);
+        return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

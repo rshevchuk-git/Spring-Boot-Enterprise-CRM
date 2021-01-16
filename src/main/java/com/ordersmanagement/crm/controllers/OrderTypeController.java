@@ -21,7 +21,8 @@ public class OrderTypeController {
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<OrderTypeEntity>> getAllTypes() {
-        return new ResponseEntity<>(orderTypeService.getAllOrderTypes(), HttpStatus.OK);
+        List<OrderTypeEntity> orderTypesList = orderTypeService.getAllOrderTypes();
+        return new ResponseEntity<>(orderTypesList, HttpStatus.OK);
     }
 
     @PostMapping("/")
@@ -47,6 +48,7 @@ public class OrderTypeController {
     public ResponseEntity<?> changeTypes(@PathVariable(name = "replace_id") OrderTypeEntity replaceType,
                                          @PathVariable(name = "new_id")     OrderTypeEntity newType) {
         orderTypeService.replaceOrderType(replaceType, newType);
+        orderTypeService.deleteOrderType(replaceType.getTypeId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

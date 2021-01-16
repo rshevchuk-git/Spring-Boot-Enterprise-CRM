@@ -22,6 +22,7 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginForm credentials) {
-        return new ResponseEntity<>(authService.trySignIn(credentials), HttpStatus.OK);
+        JwtResponse authentication = authService.trySignIn(credentials);
+        return new ResponseEntity<>(authentication, HttpStatus.OK);
     }
 }

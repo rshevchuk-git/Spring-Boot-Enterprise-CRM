@@ -1,7 +1,6 @@
 package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.orders.EmployeeRepository;
-import com.ordersmanagement.crm.models.entities.EmployeeEntity;
 import com.ordersmanagement.crm.models.forms.LoginForm;
 import com.ordersmanagement.crm.models.response.JwtResponse;
 import com.ordersmanagement.crm.utils.JwtUtils;
@@ -37,26 +36,22 @@ public class AuthService {
     }
 
     public List<String> getUserRoles(UserDetailsImpl userDetails) {
-        return userDetails.getAuthorities()
-                .stream()
+        return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
     }
 
     public JwtResponse trySignIn(LoginForm credentials) {
+        JwtResponse jwtResponse = new JwtResponse();
         Authentication authentication = setAuthentication(credentials);
-        String jwtToken = jwtUtils.generateJwtToken(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = getUserRoles(userDetails);
 
-        EmployeeEntity loggedEmployee = null;
-        if(!roles.isEmpty()) {
-            loggedEmployee = employeeRepository.findByUserID(userDetails.getId()).orElse(null);
-        } else {
-            roles.add("ROLE_CUSTOMER");
-        }
+        jwtResponse.setToken(jwtUtils.generateJwtToken(authentication));
+        jwtResponse.setId(userDetails.getId());
+        jwtResponse.setUsername(userDetails.getUsername());
+        jwtResponse.setRoles(getUserRoles(userDetails));
+        jwtResponse.setEmployee(employeeRepository.findByUserID(userDetails.getId()).orElse(null));
 
-        return new JwtResponse(jwtToken, userDetails.getId(), userDetails.getUsername(), roles, loggedEmployee);
+        return jwtResponse;
     }
 }
