@@ -67,8 +67,9 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<?> deleteOrder(@PathVariable("id") Integer orderId) {
-        boolean isDeleted = orderService.deleteOrder(orderId);
+    public ResponseEntity<?> deleteOrder(@PathVariable("id") OrderEntity order) {
+        paymentService.removePaymentsFrom(order);
+        boolean isDeleted = orderService.deleteOrder(order.getOrderId());
         if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {

@@ -75,6 +75,7 @@ public class CustomerEntity {
     }
 
     public void putOnBalance(int paySum, LocalDateTime paymentDateTime, String receiver) {
+        if (paySum <= 0) return;
         this.money += paySum;
         appendPayLog(PaymentUtils.formatPayLog(paymentDateTime, paySum, receiver));
     }

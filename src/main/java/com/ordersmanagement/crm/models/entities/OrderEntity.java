@@ -98,17 +98,17 @@ public class OrderEntity {
     }
 
     public void setPayLog(String newLog) {
-        if (newLog != null && !newLog.isEmpty()) {
-            this.payLog = newLog.trim() + "\n";
-        }
+        if (newLog == null || newLog.isEmpty()) return;
+        this.payLog = newLog.trim() + "\n";
     }
 
     public void appendPayLog(String appendix) {
-        String paymentLog = appendix.endsWith("\n") ? appendix : (appendix + "\n");
+        if (appendix == null || appendix.isEmpty()) return;
+        String formattedLog = appendix.endsWith("\n") ? appendix : (appendix + "\n");
         if (this.payLog == null || this.payLog.isEmpty()) {
-            this.payLog = paymentLog;
+            this.payLog = formattedLog;
         } else {
-            this.payLog += paymentLog;;
+            this.payLog += formattedLog;;
         }
     }
 

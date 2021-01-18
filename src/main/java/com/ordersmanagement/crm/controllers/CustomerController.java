@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
+import com.ordersmanagement.crm.chains.CustomerValidatorChain;
 import com.ordersmanagement.crm.models.forms.CustomersWrapper;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.services.CustomerService;
@@ -23,6 +24,7 @@ import java.util.List;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final CustomerValidatorChain validatorChain;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
@@ -34,15 +36,18 @@ public class CustomerController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> saveCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
-        return customerService.saveCustomer(newCustomer)
-                .map(savedCustomer -> new ResponseEntity<>(savedCustomer, HttpStatus.CREATED))
-                .orElseGet(()      -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
+        boolean isValid = validatorChain.validate(newCustomer);
+        if (!isValid) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        CustomerEntity savedCustomer = customerService.saveCustomer(newCustomer);
+        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
-        CustomerEntity updatedCustomer = customerService.updateCustomer(newCustomer);
+        CustomerEntity updatedCustomer = customerService.saveCustomer(newCustomer);
         return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 

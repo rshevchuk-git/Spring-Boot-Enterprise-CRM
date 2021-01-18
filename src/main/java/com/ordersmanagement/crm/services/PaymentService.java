@@ -7,7 +7,6 @@ import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import com.ordersmanagement.crm.models.entities.PaymentMethodEntity;
 import com.ordersmanagement.crm.models.forms.PaymentForm;
-import com.ordersmanagement.crm.utils.AuthUtils;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,24 +33,28 @@ public class PaymentService {
     }
 
     @Transactional
-    public void makePayment(PaymentForm payment) throws CustomerNotFoundException {
-        List<OrderEntity> unpaidOrders = orderService.getUnpaidOrdersOf(payment.getCustomer(), payment.getEntrepreneur());
+    public void makePayment(PaymentForm payment) {
         int remainingMoney = PaymentUtils.calculateOperatingSum(payment.getSum(), payment.getPercentage());
+        if (remainingMoney <= 0) return;
 
-        for (OrderEntity currentOrder : unpaidOrders) {
-            int requiredPayment = currentOrder.getFinalSum() - currentOrder.getPaySum();
+        List<OrderEntity> unpaidOrders = orderService.getUnpaidOrdersOf(payment.getCustomer(), payment.getEntrepreneur());
+        for (OrderEntity order : unpaidOrders) {
+            int requiredPayment = order.getFinalSum() - order.getPaySum();
             if (remainingMoney >= requiredPayment) {
-                currentOrder.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), requiredPayment, payment.getReceiver()));
+                order.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), requiredPayment, payment.getReceiver()));
                 remainingMoney -= requiredPayment;
             } else if (remainingMoney != 0) {
-                currentOrder.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), remainingMoney, payment.getReceiver()));
+                order.addPayments(PaymentUtils.formatPayLog(payment.getPaymentDate(), remainingMoney, payment.getReceiver()));
                 remainingMoney = 0;
             }
         }
-        if(remainingMoney > 0) {
-            CustomerEntity customer = customerRepository.findById(payment.getCustomer().getCustomerId()).orElseThrow(CustomerNotFoundException::new);
-            customer.putOnBalance(remainingMoney, payment.getPaymentDate(), payment.getReceiver());
-        }
+        putRemainingMoneyOnBalance(payment.getCustomer().getCustomerId(), remainingMoney, payment.getPaymentDate(), payment.getReceiver());
+    }
+
+    @Transactional
+    public void putRemainingMoneyOnBalance(int customerId, int money, LocalDateTime date, String receiver) {
+        if (money <= 0) return;
+        customerRepository.findById(customerId).ifPresent(customer -> customer.putOnBalance(money, date, receiver));
     }
 
     @Transactional
@@ -66,7 +69,7 @@ public class PaymentService {
         } else {
             List<String> changedLogs = new ArrayList<>();
             for (String paymentLog : customer.getPayLog().split("\\n")) {
-                int paymentSum  = PaymentUtils.getSumFromLog(paymentLog);
+                int paymentSum = PaymentUtils.getSumFromLog(paymentLog);
                 if (remainingUnpaid >= paymentSum) {
                     order.addPayments(paymentLog);
                     customer.setMoney(customer.getMoney() - paymentSum);
@@ -89,14 +92,14 @@ public class PaymentService {
         orderService.getOrderById(updatedOrder.getOrderId()).ifPresent(savedOrder -> {
             savedOrder.setPaySum(savedOrder.getFinalSum()); // Make this order fully paid to skip it during re-payment
 
-            distributePayments(savedOrder.getPayLog(), savedOrder.getCustomer());
+            distributeOrderPayments(savedOrder.getPayLog(), savedOrder.getCustomer());
             savedOrder.removeAllPayments();
             updatedOrder.removeAllPayments();
         });
     }
 
     @Transactional
-    public void distributePayments(String paymentLog, CustomerEntity customer) {
+    public void distributeOrderPayments(String paymentLog, CustomerEntity customer) {
         if (paymentLog == null || paymentLog.isEmpty()) return;
         Arrays.stream(paymentLog.split("\n")).forEach(log -> {
             PaymentForm payment = new PaymentForm();
@@ -104,16 +107,12 @@ public class PaymentService {
             payment.setSum(PaymentUtils.getSumFromLog(log));
             payment.setPaymentDate(PaymentUtils.getLocalDateTimeFromLog(log));
             payment.setReceiver(PaymentUtils.getTypeNameFromLog(log));
-            try {
-                makePayment(payment);
-            } catch (CustomerNotFoundException e) {
-                e.printStackTrace();
-            }
+            makePayment(payment);
         });
     }
 
     @Transactional
-    public void distributeOverpayment(OrderEntity updatedOrder, int overpayment) throws CustomerNotFoundException {
+    public void distributeOrderOverpayment(OrderEntity updatedOrder, int overpayment) {
         if (overpayment <= 0) return;
         int paid = 0;
         while (paid < overpayment) {

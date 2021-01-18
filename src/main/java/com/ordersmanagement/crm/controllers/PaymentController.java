@@ -35,11 +35,7 @@ public class PaymentController {
     @PostMapping(value = "/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> makePayment(@RequestBody PaymentForm payment) {
-        try {
-            paymentService.makePayment(payment);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (CustomerNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        paymentService.makePayment(payment);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -24,8 +23,8 @@ public class CustomerService {
         return customerRepository.existsById(customerId);
     }
 
-    public CustomerEntity updateCustomer(CustomerEntity customer) {
-        return customerRepository.save(customer);
+    public CustomerEntity saveCustomer(CustomerEntity newCustomer) {
+        return customerRepository.save(newCustomer);
     }
 
     public boolean deleteCustomer(Integer customerID){
@@ -35,27 +34,6 @@ public class CustomerService {
         } else {
             return false;
         }
-    }
-
-    public Optional<CustomerEntity> saveCustomer(CustomerEntity newCustomer) {
-        if (customerRepository.existsByCustomerName(newCustomer.getCustomerName()))
-            return Optional.empty();
-        if (!newCustomer.getFirstPhone().isEmpty() &&
-                customerRepository.existsByFirstPhone(newCustomer.getFirstPhone()) &&
-                customerRepository.existsBySecondPhone(newCustomer.getFirstPhone()) &&
-                customerRepository.existsByThirdPhone(newCustomer.getFirstPhone()))
-            return Optional.empty();
-        if (!newCustomer.getSecondPhone().isEmpty() &&
-                customerRepository.existsByFirstPhone(newCustomer.getSecondPhone()) &&
-                customerRepository.existsBySecondPhone(newCustomer.getSecondPhone()) &&
-                customerRepository.existsByThirdPhone(newCustomer.getSecondPhone()))
-            return Optional.empty();
-        if (!newCustomer.getThirdPhone().isEmpty() &&
-                customerRepository.existsByFirstPhone(newCustomer.getThirdPhone()) &&
-                customerRepository.existsBySecondPhone(newCustomer.getThirdPhone()) &&
-                customerRepository.existsByThirdPhone(newCustomer.getThirdPhone()))
-            return Optional.empty();
-        return Optional.of(customerRepository.save(newCustomer));
     }
 
     public int paidOnCustomerBalance(Integer customerId, String receiver){
