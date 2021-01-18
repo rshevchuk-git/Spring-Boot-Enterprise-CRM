@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
+import com.ordersmanagement.crm.chains.OrderInspectorChain;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
 import com.ordersmanagement.crm.models.entities.StatusEntity;
@@ -31,6 +32,7 @@ public class OrderController {
 
     private final OrderService orderService;
     private final PaymentService paymentService;
+    private final OrderInspectorChain inspectorChain;
 
     @GetMapping("/{customer_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
@@ -44,39 +46,30 @@ public class OrderController {
     public ResponseEntity<?> addNewOrder(@Valid @RequestBody OrderEntity newOrder) {
         try {
             paymentService.payFromCustomerBalance(newOrder);
+            OrderEntity savedOrder = orderService.saveNewOrder(newOrder);
+            return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
         } catch (CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        OrderEntity savedOrder = orderService.saveNewOrder(newOrder);
-        return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderEntity changedOrder) {
         try {
-            if (orderService.isCustomerChanged(changedOrder)) {
-                paymentService.removePaymentsFrom(changedOrder);
-                paymentService.payFromCustomerBalance(changedOrder);
-            }
-            if (changedOrder.getPaySum() < changedOrder.getFinalSum()) {
-                paymentService.payFromCustomerBalance(changedOrder);
-            }
-            if (changedOrder.getPaySum() > changedOrder.getFinalSum()) {
-                orderService.updateOrder(changedOrder); // Save new 'finalSum' first, to be skipped during re-payment
-                paymentService.distributeOverpayment(changedOrder, changedOrder.getPaySum() - changedOrder.getFinalSum());
-            }
+            OrderEntity preparedOrder = inspectorChain.inspect(changedOrder);
+            OrderEntity updatedOrder  = orderService.updateOrder(preparedOrder);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (OrderNotFoundException | CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
-        OrderEntity updatedOrder = orderService.updateOrder(changedOrder);
-        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> deleteOrder(@PathVariable("id") Integer orderId) {
-        if (orderService.deleteOrder(orderId)) {
+        boolean isDeleted = orderService.deleteOrder(orderId);
+        if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -99,11 +92,13 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<OrderEntity> changeStatus(@PathVariable(name = "order_id")  Integer orderId,
                                                     @PathVariable(name = "status_id") StatusEntity status) {
-        return orderService.getOrderById(orderId).map((order -> {
-            order.setStatus(status);
-            OrderEntity updatedOrder = orderService.updateOrder(order);
-            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
-        })).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return orderService.getOrderById(orderId)
+                .map(order -> {
+                        order.setStatus(status);
+                        OrderEntity updatedOrder = orderService.updateOrder(order);
+                        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
+                    })
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(value = "/export", consumes="application/json", produces="application/json")

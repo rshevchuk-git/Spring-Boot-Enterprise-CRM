@@ -1,8 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.dao.orders.CustomerRepository;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.models.forms.PaymentForm;
 import com.ordersmanagement.crm.models.entities.PaymentMethodEntity;
 import com.ordersmanagement.crm.services.PaymentService;

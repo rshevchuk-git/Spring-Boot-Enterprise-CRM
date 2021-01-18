@@ -96,7 +96,7 @@ public class PaymentService {
 
     @Transactional
     public void distributePayments(String paymentLog, CustomerEntity customer) {
-        if (paymentLog.isEmpty()) return;
+        if (paymentLog == null || paymentLog.isEmpty()) return;
         Arrays.stream(paymentLog.split("\n")).forEach(log -> {
             PaymentForm payment = new PaymentForm();
             payment.setCustomer(customer);

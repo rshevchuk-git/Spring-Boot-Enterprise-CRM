@@ -9,8 +9,8 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.orders-management</groupId>
-	<artifactId>crm</artifactId>
-	<version>v2-b1</version>
+	<artifactId>psdruk</artifactId>
+	<version>app</version>
 	<name>OrdersManagementSystem</name>
 	<description>Orders Management System</description>
 

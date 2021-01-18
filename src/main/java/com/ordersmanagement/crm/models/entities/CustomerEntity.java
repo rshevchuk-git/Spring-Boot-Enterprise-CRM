@@ -66,10 +66,6 @@ public class CustomerEntity {
     @Column(name = "person_3")
     private String thirdPerson;
 
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "customer", cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.PERSIST})
-//    private List<OrderEntity> orders;
-
     public void appendPayLog(String appendix) {
         if (this.payLog == null || this.payLog.isEmpty()) {
             this.payLog = appendix;

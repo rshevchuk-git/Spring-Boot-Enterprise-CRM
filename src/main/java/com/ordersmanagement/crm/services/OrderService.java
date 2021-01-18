@@ -26,9 +26,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final TypeFilterService typeFilterService;
 
-    public List<OrderEntity> getRecentOrders() {
-        LocalDateTime dayBefore = LocalDateTime.now(ZoneId.of("Europe/Kiev")).minusDays(2);
-        return orderRepository.getOrdersStartingFrom(dayBefore);
+    public Optional<OrderEntity> getOrderById(Integer id) {
+        return orderRepository.findById(id);
     }
 
     public List<OrderEntity> getUnpaidOrdersOf(CustomerEntity customer, EntrepreneurEntity entrepreneur) {
@@ -39,8 +38,9 @@ public class OrderService {
         return orderRepository.getOrdersMadeBy(customerId);
     }
 
-    public Optional<OrderEntity> getOrderById(Integer id) {
-        return orderRepository.findById(id);
+    public List<OrderEntity> getRecentOrders() {
+        LocalDateTime dayBefore = LocalDateTime.now(ZoneId.of("Europe/Kiev")).minusDays(5);
+        return orderRepository.getOrdersStartingFrom(dayBefore);
     }
 
     public OrderEntity saveNewOrder(OrderEntity newOrder) {
@@ -70,7 +70,7 @@ public class OrderService {
         }
     }
 
-    public Boolean isCustomerChanged(OrderEntity changedOrder) throws OrderNotFoundException {
+    public boolean isCustomerChanged(OrderEntity changedOrder) throws OrderNotFoundException {
         OrderEntity savedOrder = orderRepository.findById(changedOrder.getOrderId()).orElseThrow(OrderNotFoundException::new);
         return savedOrder.getCustomer().getCustomerId() != changedOrder.getCustomer().getCustomerId();
     }
