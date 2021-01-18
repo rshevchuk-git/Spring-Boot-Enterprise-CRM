@@ -1,8 +1,9 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.EmployeeRepository;
+import com.ordersmanagement.crm.events.AuthorizationEventPublisher;
 import com.ordersmanagement.crm.models.forms.LoginForm;
 import com.ordersmanagement.crm.models.response.JwtResponse;
+import com.ordersmanagement.crm.utils.AuthUtils;
 import com.ordersmanagement.crm.utils.JwtUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 public class AuthService {
 
     private final JwtUtils jwtUtils;
-    private final EmployeeRepository employeeRepository;
     private final AuthenticationManager authenticationManager;
+    private final AuthorizationEventPublisher authorizationEventPublisher;
 
     public Collection<? extends GrantedAuthority> getUserRoles() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities();
@@ -32,6 +33,8 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl loggedUser = (UserDetailsImpl) authentication.getPrincipal();
+        authorizationEventPublisher.publish(loggedUser);
         return authentication;
     }
 
@@ -50,7 +53,7 @@ public class AuthService {
         jwtResponse.setId(userDetails.getId());
         jwtResponse.setUsername(userDetails.getUsername());
         jwtResponse.setRoles(getUserRoles(userDetails));
-        jwtResponse.setEmployee(employeeRepository.findByUserID(userDetails.getId()).orElse(null));
+        jwtResponse.setEmployee(AuthUtils.LOGGED_EMPLOYEE);
 
         return jwtResponse;
     }
