@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.models.entities;
 
+import com.ordersmanagement.crm.models.pojos.Payment;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -74,10 +75,10 @@ public class CustomerEntity {
         }
     }
 
-    public void putOnBalance(int paySum, LocalDateTime paymentDateTime, String receiver) {
-        if (paySum <= 0) return;
-        this.money += paySum;
-        appendPayLog(PaymentUtils.formatPayLog(paymentDateTime, paySum, receiver));
+    public void putOnBalance(Payment payment) {
+        if (payment.getSum() <= 0) return;
+        this.money += payment.getSum();
+        appendPayLog(PaymentUtils.formatPayLog(payment.getDateTime(), payment.getSum(), payment.getReceiver()));
     }
 
     public void removeAllPayments() {

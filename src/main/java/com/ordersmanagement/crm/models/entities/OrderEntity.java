@@ -1,5 +1,6 @@
 package com.ordersmanagement.crm.models.entities;
 
+import com.ordersmanagement.crm.models.pojos.Payment;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -89,6 +90,10 @@ public class OrderEntity {
     @Column(name = "pay_log")
     private String payLog = "";
 
+    public Integer getCustomerId() {
+        return this.customer.getCustomerId();
+    }
+
     public void addPayments(String paymentLog) {
         Arrays.stream(paymentLog.split("\\n")).forEach(payment -> {
             this.payDate = PaymentUtils.getLocalDateTimeFromLog(payment);
@@ -110,6 +115,19 @@ public class OrderEntity {
         } else {
             this.payLog += formattedLog;;
         }
+    }
+
+    public void replaceLastPayment(String newLog) {
+        this.removeLastPayment();
+        this.addPayments(newLog);
+    }
+
+    public void removeLastPayment() {
+        Payment lastPayment = PaymentUtils.getLastPayment(this.getPayLog());
+        int lastNewLineIdx = this.getPayLog().trim().lastIndexOf("\n");
+        String newLog = this.getPayLog().substring(0, lastNewLineIdx);
+        this.setPaySum(this.getPaySum() - lastPayment.getSum());
+        this.setPayLog(newLog);
     }
 
     public void removeAllPayments() {

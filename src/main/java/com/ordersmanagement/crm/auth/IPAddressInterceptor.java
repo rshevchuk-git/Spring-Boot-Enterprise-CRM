@@ -1,7 +1,5 @@
 package com.ordersmanagement.crm.auth;
 import com.ordersmanagement.crm.services.AuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,8 +12,6 @@ import java.util.List;
 
 @Component
 public class IPAddressInterceptor implements HandlerInterceptor {
-
-    private static final Logger logger = LoggerFactory.getLogger(IPAddressInterceptor.class);
 
     @Value(value = "${allowed.addresses}")
     private List<String> allowedAddresses;
@@ -37,12 +33,6 @@ public class IPAddressInterceptor implements HandlerInterceptor {
         }
         clientAddress = clientAddress.contains(",") ? clientAddress.split(",")[0] : clientAddress;
 
-        if(allowedAddresses.contains(clientAddress)) {
-            logger.info("[SUCCESS] Trying to connect from: {}", clientAddress);
-            return true;
-        } else {
-            logger.info("[ERROR] Trying to connect from: {}", clientAddress);
-            return false;
-        }
+        return allowedAddresses.contains(clientAddress);
     }
 }

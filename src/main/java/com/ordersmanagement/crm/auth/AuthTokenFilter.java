@@ -1,5 +1,7 @@
 package com.ordersmanagement.crm.auth;
 
+import com.ordersmanagement.crm.events.AuthorizationEventPublisher;
+import com.ordersmanagement.crm.services.UserDetailsImpl;
 import com.ordersmanagement.crm.services.UserDetailsServiceImpl;
 import com.ordersmanagement.crm.utils.JwtUtils;
 import org.slf4j.Logger;
@@ -26,6 +28,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private JwtUtils jwtUtils;
 
     @Autowired
+    private AuthorizationEventPublisher authorizationEventPublisher;
+
+    @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
     @Override
@@ -39,6 +44,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                UserDetailsImpl loggedUser = (UserDetailsImpl) authentication.getPrincipal();
+                authorizationEventPublisher.publish(loggedUser);
             }
         } catch (Exception e) {
             logger.error("Cannot set user authentication: {e}", e);

@@ -1,6 +1,5 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.OrderRepository;
 import com.ordersmanagement.crm.dao.orders.OrderTypeRepository;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
@@ -14,8 +13,8 @@ import java.util.Optional;
 @AllArgsConstructor
 public class OrderTypeService {
 
-    private final OrderRepository orderRepository;
     private final OrderTypeRepository orderTypeRepository;
+    private final OrderService orderService;
     private final TypeFilterService typeFilterService;
 
     public List<OrderTypeEntity> getAllOrderTypes() {
@@ -38,8 +37,8 @@ public class OrderTypeService {
     }
 
     public void replaceOrderType(OrderTypeEntity replaceType, OrderTypeEntity newType) {
-        List<OrderEntity> byOrderType = orderRepository.findByOrderType(replaceType);
+        List<OrderEntity> byOrderType = orderService.getAllByOrderType(replaceType);
         byOrderType.forEach(order -> order.setOrderType(newType));
-        orderRepository.saveAll(byOrderType);
+        orderService.saveAll(byOrderType);
     }
 }

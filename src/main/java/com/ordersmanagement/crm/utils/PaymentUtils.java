@@ -1,5 +1,7 @@
 package com.ordersmanagement.crm.utils;
 
+import com.ordersmanagement.crm.models.pojos.Payment;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -33,13 +35,15 @@ public final class PaymentUtils {
                "  Сума : " + paySum + "  Отримувач : " + receiver + "\n";
     }
 
-    public static String getLastPayment(String fullLog) {
+    public static Payment getLastPayment(String fullLog) {
+        String log = "";
         if (fullLog.chars().filter(ch -> ch == '\n').count() > 1) {
             int idx = fullLog.trim().lastIndexOf('\n');
-            return fullLog.substring(idx).trim();
+            log = fullLog.substring(idx).trim();
         } else {
-            return fullLog.trim();
+            log = fullLog.trim();
         }
+        return new Payment(getSumFromLog(log), getLocalDateTimeFromLog(log), getReceiverFromLog(log));
     }
 
     public static LocalDateTime getLocalDateTimeFromLog(String log){

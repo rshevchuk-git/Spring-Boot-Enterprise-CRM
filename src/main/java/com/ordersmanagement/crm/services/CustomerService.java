@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,6 +22,10 @@ public class CustomerService {
 
     public boolean existsById(Integer customerId) {
         return customerRepository.existsById(customerId);
+    }
+
+    public Optional<CustomerEntity> getById(Integer customerId) {
+        return customerRepository.findById(customerId);
     }
 
     public CustomerEntity saveCustomer(CustomerEntity newCustomer) {

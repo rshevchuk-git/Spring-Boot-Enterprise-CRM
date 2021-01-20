@@ -1,7 +1,6 @@
 package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.orders.OrderKindRepository;
-import com.ordersmanagement.crm.dao.orders.OrderRepository;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import com.ordersmanagement.crm.models.entities.OrderKindEntity;
 import lombok.AllArgsConstructor;
@@ -13,8 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderKindService {
 
-    private final OrderRepository orderRepository;
     private final OrderKindRepository orderKindRepository;
+    private final OrderService orderService;
 
     public List<OrderKindEntity> getAllOrderKinds() {
         return orderKindRepository.findAll();
@@ -34,8 +33,8 @@ public class OrderKindService {
     }
 
     public void replaceOrderKinds(OrderKindEntity replaceKind, OrderKindEntity newKind) {
-        List<OrderEntity> ordersByKind = orderRepository.findByOrderKind(replaceKind);
+        List<OrderEntity> ordersByKind = orderService.getAllByOrderKind(replaceKind);
         ordersByKind.forEach(order -> order.setOrderKind(newKind));
-        orderRepository.saveAll(ordersByKind);
+        orderService.saveAll(ordersByKind);
     }
 }

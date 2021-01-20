@@ -1,11 +1,14 @@
 package com.ordersmanagement.crm.controllers;
 
 import com.ordersmanagement.crm.chains.CustomerValidatorChain;
-import com.ordersmanagement.crm.models.forms.CustomersWrapper;
+import com.ordersmanagement.crm.models.dto.CustomersWrapper;
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.services.CustomerService;
 import com.ordersmanagement.crm.utils.CustomerExcelExporter;
+import com.ordersmanagement.crm.utils.LoggerUtils;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +26,8 @@ import java.util.List;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
+    private final Logger logger = LoggerFactory.getLogger("[Customer Controller]");
+
     private final CustomerService customerService;
     private final CustomerValidatorChain validatorChain;
 
@@ -36,6 +41,7 @@ public class CustomerController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> saveCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+        LoggerUtils.logUserAction(logger, "creates:\n" + newCustomer);
         boolean isValid = validatorChain.validate(newCustomer);
         if (!isValid) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -47,6 +53,7 @@ public class CustomerController {
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<CustomerEntity> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+        LoggerUtils.logUserAction(logger, "changes customer [" + newCustomer.getCustomerId() + "] to:\n" + newCustomer);
         CustomerEntity updatedCustomer = customerService.saveCustomer(newCustomer);
         return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
@@ -54,6 +61,7 @@ public class CustomerController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> deleteCustomer(@PathVariable("id") int customerId) {
+        LoggerUtils.logUserAction(logger, "deletes customer [" + customerId + "]");
         if (customerService.deleteCustomer(customerId)) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
@@ -64,6 +72,7 @@ public class CustomerController {
     @PostMapping(value = "/export")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody CustomersWrapper customers) throws IOException {
+        LoggerUtils.logUserAction(logger, "exports customers");
         ByteArrayInputStream byteStream = new CustomerExcelExporter(customers.getCustomers()).export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=clients.xlsx");

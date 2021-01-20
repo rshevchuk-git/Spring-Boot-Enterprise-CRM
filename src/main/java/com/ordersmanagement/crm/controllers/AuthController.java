@@ -1,7 +1,7 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.forms.LoginForm;
-import com.ordersmanagement.crm.models.response.JwtResponse;
+import com.ordersmanagement.crm.models.dto.LoginForm;
+import com.ordersmanagement.crm.models.dto.JwtResponse;
 import com.ordersmanagement.crm.services.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginForm credentials) {
+    public ResponseEntity<JwtResponse> signIn(@Valid @RequestBody LoginForm credentials) {
         JwtResponse authentication = authService.trySignIn(credentials);
         return new ResponseEntity<>(authentication, HttpStatus.OK);
     }

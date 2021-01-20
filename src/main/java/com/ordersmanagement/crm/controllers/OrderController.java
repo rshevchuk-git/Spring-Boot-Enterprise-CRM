@@ -3,14 +3,18 @@ package com.ordersmanagement.crm.controllers;
 import com.ordersmanagement.crm.chains.OrderInspectorChain;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
-import com.ordersmanagement.crm.models.entities.StatusEntity;
-import com.ordersmanagement.crm.models.forms.OrdersWrapper;
+import com.ordersmanagement.crm.models.dto.OrdersWrapper;
+import com.ordersmanagement.crm.models.dto.SortForm;
+import com.ordersmanagement.crm.models.dto.Summary;
 import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.forms.SortForm;
-import com.ordersmanagement.crm.models.response.Summary;
-import com.ordersmanagement.crm.services.*;
+import com.ordersmanagement.crm.models.entities.StatusEntity;
+import com.ordersmanagement.crm.services.OrderService;
+import com.ordersmanagement.crm.services.OrderServiceFacade;
+import com.ordersmanagement.crm.utils.LoggerUtils;
 import com.ordersmanagement.crm.utils.OrderExcelExporter;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,20 +22,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import javax.validation.Valid;
 import java.util.List;
 
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/api/orders")
 public class OrderController {
 
+    private final Logger logger = LoggerFactory.getLogger("[Order Controller]");
+
     private final OrderService orderService;
-    private final PaymentService paymentService;
+    private final OrderServiceFacade orderServiceFacade;
     private final OrderInspectorChain inspectorChain;
 
     @GetMapping("/{customer_id}")
@@ -45,8 +50,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> addNewOrder(@Valid @RequestBody OrderEntity newOrder) {
         try {
-            paymentService.payFromCustomerBalance(newOrder);
-            OrderEntity savedOrder = orderService.saveNewOrder(newOrder);
+            OrderEntity savedOrder = orderServiceFacade.addOrder(newOrder);
             return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
         } catch (CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -56,9 +60,10 @@ public class OrderController {
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderEntity changedOrder) {
+        LoggerUtils.logUserAction(logger, "changes " + changedOrder.getOrderId() + " to:\n" + changedOrder);
         try {
             OrderEntity preparedOrder = inspectorChain.inspect(changedOrder);
-            OrderEntity updatedOrder  = orderService.updateOrder(preparedOrder);
+            OrderEntity updatedOrder = orderService.updateOrder(preparedOrder);
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (OrderNotFoundException | CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -68,13 +73,9 @@ public class OrderController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<?> deleteOrder(@PathVariable("id") OrderEntity order) {
-        paymentService.removePaymentsFrom(order);
-        boolean isDeleted = orderService.deleteOrder(order.getOrderId());
-        if (isDeleted) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        LoggerUtils.logUserAction(logger, "deletes:\n" + order);
+        orderServiceFacade.deleteOrder(order);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/filter")
@@ -91,20 +92,17 @@ public class OrderController {
 
     @GetMapping("/statuses/{order_id}/{status_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<OrderEntity> changeStatus(@PathVariable(name = "order_id")  Integer orderId,
+    public ResponseEntity<OrderEntity> changeStatus(@PathVariable(name = "order_id") OrderEntity order,
                                                     @PathVariable(name = "status_id") StatusEntity status) {
-        return orderService.getOrderById(orderId)
-                .map(order -> {
-                        order.setStatus(status);
-                        OrderEntity updatedOrder = orderService.updateOrder(order);
-                        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
-                    })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        LoggerUtils.logUserAction(logger, "changes status of " + order.getOrderId() + " to " + status.getName());
+        OrderEntity updatedOrder = orderService.changeOrderStatus(order, status);
+        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
     @PostMapping(value = "/export", consumes="application/json", produces="application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ORDERS_EXPORTER')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody OrdersWrapper orders) throws IOException {
+        LoggerUtils.logUserAction(logger, "requests orders export");
         ByteArrayInputStream byteStream = new OrderExcelExporter(orders.getOrders()).export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=список замовлень.xlsx");

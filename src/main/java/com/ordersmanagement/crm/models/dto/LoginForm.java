@@ -1,4 +1,4 @@
-package com.ordersmanagement.crm.models.forms;
+package com.ordersmanagement.crm.models.dto;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.ordersmanagement.crm.models.response;
+package com.ordersmanagement.crm.models.dto;
 
 import com.ordersmanagement.crm.models.entities.OrderEntity;
 import lombok.AllArgsConstructor;

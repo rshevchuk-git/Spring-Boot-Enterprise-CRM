@@ -1,4 +1,4 @@
-package com.ordersmanagement.crm.models.forms;
+package com.ordersmanagement.crm.models.dto;
 
 import com.ordersmanagement.crm.models.entities.CustomerEntity;
 import com.ordersmanagement.crm.models.entities.EntrepreneurEntity;
@@ -25,6 +25,10 @@ public class PaymentForm {
 
     public void setPaymentDate(LocalDateTime paymentDateTime) {
         this.paymentDate = Objects.requireNonNullElseGet(paymentDateTime, () -> LocalDateTime.now(ZoneId.of("Europe/Kiev")));
+    }
+
+    public Integer getCustomerId() {
+        return this.customer.getCustomerId();
     }
 
     public void setReceiver(String receiver) {
