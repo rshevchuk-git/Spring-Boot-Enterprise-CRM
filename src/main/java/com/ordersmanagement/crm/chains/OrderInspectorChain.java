@@ -3,7 +3,7 @@ package com.ordersmanagement.crm.chains;
 import com.ordersmanagement.crm.chains.inspectors.OrderInspector;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
+import com.ordersmanagement.crm.models.entities.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +15,7 @@ public class OrderInspectorChain {
     @Autowired
     private List<OrderInspector> inspectors;
 
-    public OrderEntity inspect(OrderEntity order) throws OrderNotFoundException, CustomerNotFoundException {
+    public Order inspect(Order order) throws OrderNotFoundException, CustomerNotFoundException {
         for (OrderInspector inspector : inspectors) {
             inspector.process(order);
         }

@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.utils;
 
-import com.ordersmanagement.crm.models.entities.OrderEntity;
+import com.ordersmanagement.crm.models.entities.Order;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -20,9 +20,9 @@ public class OrderExcelExporter {
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<OrderEntity> orders;
+    private List<Order> orders;
 
-    public OrderExcelExporter(List<OrderEntity> orders) {
+    public OrderExcelExporter(List<Order> orders) {
         this.orders = orders;
         this.workbook = new XSSFWorkbook();
         this.sheet = workbook.createSheet("Замовлення");

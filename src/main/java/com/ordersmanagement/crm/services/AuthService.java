@@ -3,6 +3,7 @@ package com.ordersmanagement.crm.services;
 import com.ordersmanagement.crm.events.AuthorizationEventPublisher;
 import com.ordersmanagement.crm.models.dto.LoginForm;
 import com.ordersmanagement.crm.models.dto.JwtResponse;
+import com.ordersmanagement.crm.models.entities.UserDetailsImpl;
 import com.ordersmanagement.crm.utils.AuthUtils;
 import com.ordersmanagement.crm.utils.JwtUtils;
 import lombok.AllArgsConstructor;

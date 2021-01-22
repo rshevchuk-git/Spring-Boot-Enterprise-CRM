@@ -1,7 +1,10 @@
-package com.ordersmanagement.crm.services;
+package com.ordersmanagement.crm.services.facades;
 
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.services.CustomerPaymentsManager;
+import com.ordersmanagement.crm.services.OrderPaymentsManager;
+import com.ordersmanagement.crm.services.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +17,12 @@ public class OrderServiceFacade {
     private final CustomerPaymentsManager customerPaymentsManager;
     private final OrderPaymentsManager orderPaymentsManager;
 
-    public OrderEntity addOrder(OrderEntity newOrder) throws CustomerNotFoundException {
+    public Order addOrder(Order newOrder) throws CustomerNotFoundException {
         customerPaymentsManager.payFromCustomerBalance(newOrder);
         return orderService.saveNewOrder(newOrder);
     }
 
-    public void deleteOrder(OrderEntity order) {
+    public void deleteOrder(Order order) {
         orderPaymentsManager.removePaymentsFrom(order);
         orderService.deleteById(order.getOrderId());
     }

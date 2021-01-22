@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "customer_entrepreneur")
-public class CELinkEntity {
+public class CELink {
 
     @EmbeddedId
     private CEKey id;
@@ -20,10 +20,10 @@ public class CELinkEntity {
     @ManyToOne
     @MapsId("customer_id")
     @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    private Customer customer;
 
     @ManyToOne
     @MapsId("entrepreneur_id")
     @JoinColumn(name = "entrepreneur_id")
-    private EntrepreneurEntity entrepreneur;
+    private Entrepreneur entrepreneur;
 }

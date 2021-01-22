@@ -17,7 +17,7 @@ import java.util.HashMap;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.ordersmanagement.crm.dao.orders",
+        basePackages = "com.ordersmanagement.crm.dao.business",
         entityManagerFactoryRef = "ordersEntityManager",
         transactionManagerRef = "ordersTransactionManager")
 public class PersistenceOrdersAutoConfiguration {

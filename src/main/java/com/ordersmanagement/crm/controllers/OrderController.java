@@ -6,10 +6,10 @@ import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
 import com.ordersmanagement.crm.models.dto.OrdersWrapper;
 import com.ordersmanagement.crm.models.dto.SortForm;
 import com.ordersmanagement.crm.models.dto.Summary;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.entities.StatusEntity;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.models.entities.Status;
 import com.ordersmanagement.crm.services.OrderService;
-import com.ordersmanagement.crm.services.OrderServiceFacade;
+import com.ordersmanagement.crm.services.facades.OrderServiceFacade;
 import com.ordersmanagement.crm.utils.LoggerUtils;
 import com.ordersmanagement.crm.utils.OrderExcelExporter;
 import lombok.RequiredArgsConstructor;
@@ -41,16 +41,16 @@ public class OrderController {
 
     @GetMapping("/{customer_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
-    public ResponseEntity<List<OrderEntity>> getCustomerOrders(@PathVariable("customer_id") Integer customerId) {
-        List<OrderEntity> customerOrders = orderService.getCustomerOrders(customerId);
+    public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable("customer_id") Integer customerId) {
+        List<Order> customerOrders = orderService.getCustomerOrders(customerId);
         return new ResponseEntity<>(customerOrders, HttpStatus.OK);
     }
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<?> addNewOrder(@Valid @RequestBody OrderEntity newOrder) {
+    public ResponseEntity<?> addNewOrder(@Valid @RequestBody Order newOrder) {
         try {
-            OrderEntity savedOrder = orderServiceFacade.addOrder(newOrder);
+            Order savedOrder = orderServiceFacade.addOrder(newOrder);
             return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
         } catch (CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -59,11 +59,11 @@ public class OrderController {
 
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<?> updateOrder(@Valid @RequestBody OrderEntity changedOrder) {
+    public ResponseEntity<?> updateOrder(@Valid @RequestBody Order changedOrder) {
         LoggerUtils.logUserAction(logger, "changes " + changedOrder.getOrderId() + " to:\n" + changedOrder);
         try {
-            OrderEntity preparedOrder = inspectorChain.inspect(changedOrder);
-            OrderEntity updatedOrder = orderService.updateOrder(preparedOrder);
+            Order preparedOrder = inspectorChain.inspect(changedOrder);
+            Order updatedOrder = orderService.updateOrder(preparedOrder);
             return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (OrderNotFoundException | CustomerNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -72,7 +72,7 @@ public class OrderController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<?> deleteOrder(@PathVariable("id") OrderEntity order) {
+    public ResponseEntity<?> deleteOrder(@PathVariable("id") Order order) {
         LoggerUtils.logUserAction(logger, "deletes:\n" + order);
         orderServiceFacade.deleteOrder(order);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -82,7 +82,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
     public ResponseEntity<?> filterOrders(@RequestParam(name = "stat", required = false, defaultValue = "false") Boolean showStatistics,
                                           @RequestBody SortForm selections) {
-        List<OrderEntity> filteredList = orderService.getSortedOrders(selections);
+        List<Order> filteredList = orderService.getSortedOrders(selections);
         if (showStatistics) {
             Summary ordersSummary = orderService.summarize(filteredList, selections.getReceiver(), selections.getCustomer());
             return new ResponseEntity<>(ordersSummary, HttpStatus.OK);
@@ -92,10 +92,10 @@ public class OrderController {
 
     @GetMapping("/statuses/{order_id}/{status_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<OrderEntity> changeStatus(@PathVariable(name = "order_id") OrderEntity order,
-                                                    @PathVariable(name = "status_id") StatusEntity status) {
+    public ResponseEntity<Order> changeStatus(@PathVariable(name = "order_id") Order order,
+                                              @PathVariable(name = "status_id") Status status) {
         LoggerUtils.logUserAction(logger, "changes status of " + order.getOrderId() + " to " + status.getName());
-        OrderEntity updatedOrder = orderService.changeOrderStatus(order, status);
+        Order updatedOrder = orderService.changeOrderStatus(order, status);
         return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 

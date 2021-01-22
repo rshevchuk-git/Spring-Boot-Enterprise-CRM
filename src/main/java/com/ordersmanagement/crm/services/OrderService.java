@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.OrderRepository;
+import com.ordersmanagement.crm.dao.business.OrderRepository;
 import com.ordersmanagement.crm.exceptions.OrderNotFoundException;
 import com.ordersmanagement.crm.models.dto.SortForm;
 import com.ordersmanagement.crm.models.dto.Summary;
@@ -27,42 +27,42 @@ public class OrderService {
     private final CustomerService customerService;
     private final TypeFilterService typeFilterService;
 
-    public Optional<OrderEntity> getOrderById(Integer id) {
+    public Optional<Order> getOrderById(Integer id) {
         return orderRepository.findById(id);
     }
 
-    public List<OrderEntity> getUnpaidOrdersOf(CustomerEntity customer, EntrepreneurEntity entrepreneur) {
+    public List<Order> getUnpaidOrdersOf(Customer customer, Entrepreneur entrepreneur) {
         return orderRepository.getUnpaidOrdersOf(customer, entrepreneur);
     }
 
-    public List<OrderEntity> getAllByOrderKind(OrderKindEntity orderKind) {
+    public List<Order> getAllByOrderKind(OrderKind orderKind) {
         return orderRepository.findByOrderKind(orderKind);
     }
 
-    public List<OrderEntity> getAllByOrderType(OrderTypeEntity orderType) {
+    public List<Order> getAllByOrderType(OrderType orderType) {
         return orderRepository.findByOrderType(orderType);
     }
 
-    public List<OrderEntity> getCustomerOrders(Integer customerId) {
+    public List<Order> getCustomerOrders(Integer customerId) {
         return orderRepository.getOrdersMadeBy(customerId);
     }
 
-    public List<OrderEntity> getRecentOrders() {
+    public List<Order> getRecentOrders() {
         LocalDateTime dayBefore = LocalDateTime.now(ZoneId.of("Europe/Kiev")).minusDays(5);
         return orderRepository.getOrdersStartingFrom(dayBefore);
     }
 
-    public OrderEntity changeOrderStatus(OrderEntity order, StatusEntity status) {
+    public Order changeOrderStatus(Order order, Status status) {
         order.setStatus(status);
         return orderRepository.save(order);
     }
 
-    public boolean isCustomerChanged(OrderEntity changedOrder) throws OrderNotFoundException {
-        OrderEntity savedOrder = orderRepository.findById(changedOrder.getOrderId()).orElseThrow(OrderNotFoundException::new);
+    public boolean isCustomerChanged(Order changedOrder) throws OrderNotFoundException {
+        Order savedOrder = orderRepository.findById(changedOrder.getOrderId()).orElseThrow(OrderNotFoundException::new);
         return savedOrder.getCustomer().getCustomerId() != changedOrder.getCustomer().getCustomerId();
     }
 
-    public void saveAll(List<OrderEntity> orders) {
+    public void saveAll(List<Order> orders) {
         orderRepository.saveAll(orders);
     }
 
@@ -70,14 +70,14 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public OrderEntity saveNewOrder(OrderEntity newOrder) {
+    public Order saveNewOrder(Order newOrder) {
         newOrder.setOrderId(0);
         newOrder.setDate(LocalDateTime.now(ZoneId.of("Europe/Kiev")));
         newOrder.setM2(OrderUtils.calculateM2(newOrder));
         return orderRepository.save(newOrder);
     }
 
-    public OrderEntity updateOrder(OrderEntity newOrder) {
+    public Order updateOrder(Order newOrder) {
         newOrder.setM2(OrderUtils.calculateM2(newOrder));
         newOrder.setPaySum(PaymentUtils.calculatePaymentSum(newOrder.getPayLog()));
         if (newOrder.getPaySum() > 0) {
@@ -88,7 +88,7 @@ public class OrderService {
         return orderRepository.save(newOrder);
     }
 
-    public Summary summarize(List<OrderEntity> orders, String paymentMethod, CustomerEntity customer) {
+    public Summary summarize(List<Order> orders, String paymentMethod, Customer customer) {
         double  m2 = OrderUtils.totalOrdersM2(orders);
         int   fees = OrderUtils.totalOrdersFees(orders);
         int amount = OrderUtils.totalOrdersAmount(orders);
@@ -100,8 +100,8 @@ public class OrderService {
         return new Summary(orders, paid, fees, amount, m2);
     }
 
-    public List<OrderEntity> getSortedOrders(SortForm sortForm) {
-        QOrderEntity order = QOrderEntity.orderEntity;
+    public List<Order> getSortedOrders(SortForm sortForm) {
+        QOrder order = QOrder.order;
         BooleanBuilder where = new BooleanBuilder();
         if(sortForm.getOrderId() != null && sortForm.getOrderId() > 0) where.and(order.orderId.eq(sortForm.getOrderId()));
         if(sortForm.getEntrepreneur() != null) where.and(order.entrepreneur.eq(sortForm.getEntrepreneur()));
@@ -117,11 +117,11 @@ public class OrderService {
         if(sortForm.getPayDateTill() != null) where.and(order.payDate.before(sortForm.getPayDateTill().atStartOfDay().plusDays(1)));
         if(sortForm.getDetails() != null && !sortForm.getDetails().trim().equals("")) where.and(order.comment.contains(sortForm.getDetails()));
 
-        List<OrderEntity> sortedOrders = getOrdersBySelections(where);
+        List<Order> sortedOrders = getOrdersBySelections(where);
         return typeFilterService.filterOrdersForRoles(sortedOrders);
     }
 
-    private List<OrderEntity> getOrdersBySelections(BooleanBuilder where) {
+    private List<Order> getOrdersBySelections(BooleanBuilder where) {
         if (where.getValue() == null) {
             return getRecentOrders();
         } else {

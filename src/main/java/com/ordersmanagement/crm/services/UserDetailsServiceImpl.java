@@ -2,6 +2,7 @@ package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.users.User32Repository;
 import com.ordersmanagement.crm.models.entities.User32;
+import com.ordersmanagement.crm.models.entities.UserDetailsImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

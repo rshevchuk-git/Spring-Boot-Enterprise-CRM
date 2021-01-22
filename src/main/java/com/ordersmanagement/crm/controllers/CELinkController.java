@@ -1,9 +1,9 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.CELinkEntity;
+import com.ordersmanagement.crm.models.entities.CELink;
+import com.ordersmanagement.crm.models.entities.Customer;
+import com.ordersmanagement.crm.models.entities.Entrepreneur;
 import com.ordersmanagement.crm.models.keys.CEKey;
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
-import com.ordersmanagement.crm.models.entities.EntrepreneurEntity;
 import com.ordersmanagement.crm.services.LinkService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,18 +25,18 @@ public class CELinkController {
 
     @GetMapping(value = "/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<CELinkEntity>> getAllCELinks() {
-        List<CELinkEntity> ceLinksList = linkService.getAllCELinks();
+    public ResponseEntity<List<CELink>> getAllCELinks() {
+        List<CELink> ceLinksList = linkService.getAllCELinks();
         return new ResponseEntity<>(ceLinksList, HttpStatus.OK);
     }
 
     @GetMapping(value = "/{customer_id}/{entrepreneur_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<CELinkEntity> makeCELink(@PathVariable(name = "customer_id")     CustomerEntity customer,
-                                                   @PathVariable(name = "entrepreneur_id") EntrepreneurEntity entrepreneur) {
+    public ResponseEntity<CELink> makeCELink(@PathVariable(name = "customer_id") Customer customer,
+                                             @PathVariable(name = "entrepreneur_id") Entrepreneur entrepreneur) {
         CEKey key = new CEKey(customer.getCustomerId(), entrepreneur.getEntrepreneurId());
-        CELinkEntity newLink = new CELinkEntity(key, customer, entrepreneur);
-        CELinkEntity savedLink = linkService.saveCELink(newLink);
+        CELink newLink = new CELink(key, customer, entrepreneur);
+        CELink savedLink = linkService.saveCELink(newLink);
         return new ResponseEntity<>(savedLink, HttpStatus.OK);
     }
 }

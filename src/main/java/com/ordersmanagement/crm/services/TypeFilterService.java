@@ -2,8 +2,8 @@ package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.filters.TypeFilter;
 import com.ordersmanagement.crm.auth.ERole;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.models.entities.OrderType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class TypeFilterService {
         roleFilters.put(role.toString(), filter);
     }
 
-    public List<OrderTypeEntity> filterTypesForRoles(List<OrderTypeEntity> typeList) {
+    public List<OrderType> filterTypesForRoles(List<OrderType> typeList) {
         for (GrantedAuthority authority : authService.getUserRoles()) {
             TypeFilter roleFilter = roleFilters.get(authority.getAuthority());
             if (roleFilter != null ) {
@@ -34,7 +34,7 @@ public class TypeFilterService {
         return typeList;
     }
 
-    public List<OrderEntity> filterOrdersForRoles(List<OrderEntity> orderList) {
+    public List<Order> filterOrdersForRoles(List<Order> orderList) {
         for (GrantedAuthority authority : authService.getUserRoles()) {
             TypeFilter roleFilter = roleFilters.get(authority.getAuthority());
             if (roleFilter != null ) {

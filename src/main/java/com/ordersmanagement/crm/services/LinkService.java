@@ -1,9 +1,9 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.CELinkRepository;
-import com.ordersmanagement.crm.dao.orders.CPLinkRepository;
-import com.ordersmanagement.crm.models.entities.CELinkEntity;
-import com.ordersmanagement.crm.models.entities.CPLinkEntity;
+import com.ordersmanagement.crm.dao.business.CELinkRepository;
+import com.ordersmanagement.crm.dao.business.CPLinkRepository;
+import com.ordersmanagement.crm.models.entities.CELink;
+import com.ordersmanagement.crm.models.entities.CPLink;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +16,19 @@ public class LinkService {
     private final CELinkRepository ceLinkRepository;
     private final CPLinkRepository cpLinkRepository;
 
-    public List<CELinkEntity> getAllCELinks() {
+    public List<CELink> getAllCELinks() {
         return ceLinkRepository.findAll();
     }
 
-    public List<CPLinkEntity> getAllCPLinks() {
+    public List<CPLink> getAllCPLinks() {
         return cpLinkRepository.findAll();
     }
 
-    public CELinkEntity saveCELink(CELinkEntity ceLink) {
+    public CELink saveCELink(CELink ceLink) {
         return ceLinkRepository.save(ceLink);
     }
 
-    public CPLinkEntity saveCPLink(CPLinkEntity cpLink) {
+    public CPLink saveCPLink(CPLink cpLink) {
         return cpLinkRepository.save(cpLink);
     }
 }

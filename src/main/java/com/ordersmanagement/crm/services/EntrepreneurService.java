@@ -1,7 +1,7 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.EntrepreneurRepository;
-import com.ordersmanagement.crm.models.entities.EntrepreneurEntity;
+import com.ordersmanagement.crm.dao.business.EntrepreneurRepository;
+import com.ordersmanagement.crm.models.entities.Entrepreneur;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ public class EntrepreneurService {
 
     private final EntrepreneurRepository entrepreneurRepository;
 
-    public List<EntrepreneurEntity> getAllEntrepreneurs() {
+    public List<Entrepreneur> getAllEntrepreneurs() {
         return entrepreneurRepository.findAll();
     }
 }

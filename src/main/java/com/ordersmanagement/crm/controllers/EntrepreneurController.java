@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.EntrepreneurEntity;
+import com.ordersmanagement.crm.models.entities.Entrepreneur;
 import com.ordersmanagement.crm.services.EntrepreneurService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,8 @@ public class EntrepreneurController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<EntrepreneurEntity>> getAllEntrepreneurs() {
-        List<EntrepreneurEntity> entrepreneurList = entrepreneurService.getAllEntrepreneurs();
+    public ResponseEntity<List<Entrepreneur>> getAllEntrepreneurs() {
+        List<Entrepreneur> entrepreneurList = entrepreneurService.getAllEntrepreneurs();
         return new ResponseEntity<>(entrepreneurList, HttpStatus.OK);
     }
 }

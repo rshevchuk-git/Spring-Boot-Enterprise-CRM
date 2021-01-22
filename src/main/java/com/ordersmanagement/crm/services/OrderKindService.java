@@ -1,8 +1,8 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.OrderKindRepository;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.entities.OrderKindEntity;
+import com.ordersmanagement.crm.dao.business.OrderKindRepository;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.models.entities.OrderKind;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +15,11 @@ public class OrderKindService {
     private final OrderKindRepository orderKindRepository;
     private final OrderService orderService;
 
-    public List<OrderKindEntity> getAllOrderKinds() {
+    public List<OrderKind> getAllOrderKinds() {
         return orderKindRepository.findAll();
     }
     
-    public OrderKindEntity saveOrderKind(OrderKindEntity newOrderKind) {
+    public OrderKind saveOrderKind(OrderKind newOrderKind) {
         return orderKindRepository.save(newOrderKind);
     }
 
@@ -32,8 +32,8 @@ public class OrderKindService {
         }
     }
 
-    public void replaceOrderKinds(OrderKindEntity replaceKind, OrderKindEntity newKind) {
-        List<OrderEntity> ordersByKind = orderService.getAllByOrderKind(replaceKind);
+    public void replaceOrderKinds(OrderKind replaceKind, OrderKind newKind) {
+        List<Order> ordersByKind = orderService.getAllByOrderKind(replaceKind);
         ordersByKind.forEach(order -> order.setOrderKind(newKind));
         orderService.saveAll(ordersByKind);
     }

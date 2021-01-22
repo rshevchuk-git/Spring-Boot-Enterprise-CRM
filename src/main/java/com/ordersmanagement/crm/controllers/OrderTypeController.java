@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
+import com.ordersmanagement.crm.models.entities.OrderType;
 import com.ordersmanagement.crm.services.OrderTypeService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,14 @@ public class OrderTypeController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<OrderTypeEntity>> getAllTypes() {
-        List<OrderTypeEntity> orderTypesList = orderTypeService.getAllOrderTypes();
+    public ResponseEntity<List<OrderType>> getAllTypes() {
+        List<OrderType> orderTypesList = orderTypeService.getAllOrderTypes();
         return new ResponseEntity<>(orderTypesList, HttpStatus.OK);
     }
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<OrderTypeEntity> addNewType(@RequestBody OrderTypeEntity newType) {
+    public ResponseEntity<OrderType> addNewType(@RequestBody OrderType newType) {
         return orderTypeService.saveOrderType(newType)
                 .map(savedOrderType -> new ResponseEntity<>(savedOrderType, HttpStatus.CREATED))
                 .orElseGet(()       -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
@@ -45,8 +45,8 @@ public class OrderTypeController {
 
     @GetMapping("/replace/{replace_id}/{new_id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> changeTypes(@PathVariable(name = "replace_id") OrderTypeEntity replaceType,
-                                         @PathVariable(name = "new_id")     OrderTypeEntity newType) {
+    public ResponseEntity<?> changeTypes(@PathVariable(name = "replace_id") OrderType replaceType,
+                                         @PathVariable(name = "new_id") OrderType newType) {
         orderTypeService.replaceOrderType(replaceType, newType);
         orderTypeService.deleteOrderType(replaceType.getTypeId());
         return new ResponseEntity<>(HttpStatus.OK);

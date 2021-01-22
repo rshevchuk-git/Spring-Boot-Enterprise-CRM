@@ -1,29 +1,30 @@
 package com.ordersmanagement.crm.utils;
 
-import com.ordersmanagement.crm.models.entities.OrderEntity;
+import com.ordersmanagement.crm.models.entities.Order;
+
 import java.util.Arrays;
 import java.util.List;
 
 public final class OrderUtils {
 
-    public static double totalOrdersM2(List<OrderEntity> orders) {
+    public static double totalOrdersM2(List<Order> orders) {
         return orders.stream().reduce(0.0, (a, b) -> (double) Math.round((a + b.getM2()) * 1000d) / 1000d, Double::sum);
     }
 
-    public static int totalOrdersFees(List<OrderEntity> orders) {
+    public static int totalOrdersFees(List<Order> orders) {
         return orders.stream().reduce(0, (a, b) -> a + b.getFees(), Integer::sum);
     }
 
-    public static int totalOrdersAmount(List<OrderEntity> orders) {
+    public static int totalOrdersAmount(List<Order> orders) {
         return orders.stream().reduce(0, (a, b) -> a + b.getAmount(), Integer::sum);
     }
 
-    public static double calculateM2(OrderEntity order) {
+    public static double calculateM2(Order order) {
         double m2Val = (order.getWidth() * order.getHeight() / 1000000.00) * order.getAmount();
         return (double) Math.round(m2Val * 1000d) / 1000d;
     }
 
-    public static int totalOrdersPaid(List<OrderEntity> orders, String receiver) {
+    public static int totalOrdersPaid(List<Order> orders, String receiver) {
         return orders.stream().reduce(0, (sum, order) -> {
             if (receiver != null && !receiver.isEmpty()) {
                 int paymentSum = Arrays.stream(order.getPayLog().split("\n"))

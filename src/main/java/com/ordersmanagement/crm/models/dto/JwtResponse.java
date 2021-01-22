@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.models.dto;
 
-import com.ordersmanagement.crm.models.entities.EmployeeEntity;
+import com.ordersmanagement.crm.models.entities.Employee;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +16,5 @@ public class JwtResponse {
     private Integer id;
     private String username;
     private List<String> roles;
-    private EmployeeEntity employee;
+    private Employee employee;
 }

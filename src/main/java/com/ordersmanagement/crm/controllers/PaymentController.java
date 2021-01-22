@@ -1,9 +1,9 @@
 package com.ordersmanagement.crm.controllers;
 
 import com.ordersmanagement.crm.models.dto.PaymentForm;
-import com.ordersmanagement.crm.models.entities.PaymentMethodEntity;
+import com.ordersmanagement.crm.models.entities.PaymentMethod;
 import com.ordersmanagement.crm.services.PaymentService;
-import com.ordersmanagement.crm.services.PaymentServiceFacade;
+import com.ordersmanagement.crm.services.facades.PaymentServiceFacade;
 import com.ordersmanagement.crm.utils.LoggerUtils;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -27,15 +27,15 @@ public class PaymentController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<PaymentMethodEntity>> getAllPaymentTypes() {
-        List<PaymentMethodEntity> paymentMethodList = paymentService.getAllPaymentMethods();
+    public ResponseEntity<List<PaymentMethod>> getAllPaymentTypes() {
+        List<PaymentMethod> paymentMethodList = paymentService.getAllPaymentMethods();
         return new ResponseEntity<>(paymentMethodList, HttpStatus.OK);
     }
 
     @PutMapping("/types/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<PaymentMethodEntity> updatePaymentType(@RequestBody PaymentMethodEntity paymentType) {
-        PaymentMethodEntity updatedPaymentMethod = paymentService.updatePaymentMethod(paymentType);
+    public ResponseEntity<PaymentMethod> updatePaymentType(@RequestBody PaymentMethod paymentType) {
+        PaymentMethod updatedPaymentMethod = paymentService.updatePaymentMethod(paymentType);
         return new ResponseEntity<>(updatedPaymentMethod, HttpStatus.OK);
     }
 

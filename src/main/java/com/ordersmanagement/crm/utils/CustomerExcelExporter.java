@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.utils;
 
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
+import com.ordersmanagement.crm.models.entities.Customer;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -15,11 +15,11 @@ public class CustomerExcelExporter {
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
-    private List<CustomerEntity> customers;
+    private List<Customer> customers;
 
-    public CustomerExcelExporter(List<CustomerEntity> customers) {
+    public CustomerExcelExporter(List<Customer> customers) {
         this.customers = customers;
-        customers.sort(Comparator.comparing(CustomerEntity::getCustomerName));
+        customers.sort(Comparator.comparing(Customer::getCustomerName));
 
         this.workbook = new XSSFWorkbook();
         this.sheet = workbook.createSheet("Клієнти");

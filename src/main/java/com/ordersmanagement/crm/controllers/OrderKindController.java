@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.OrderKindEntity;
+import com.ordersmanagement.crm.models.entities.OrderKind;
 import com.ordersmanagement.crm.services.OrderKindService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,15 +19,15 @@ public class OrderKindController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<OrderKindEntity>> getAllOrderKinds() {
-        List<OrderKindEntity> orderKindList = orderKindService.getAllOrderKinds();
+    public ResponseEntity<List<OrderKind>> getAllOrderKinds() {
+        List<OrderKind> orderKindList = orderKindService.getAllOrderKinds();
         return new ResponseEntity<>(orderKindList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/", method = {RequestMethod.POST, RequestMethod.PUT})
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<OrderKindEntity> updateOrderKind(@RequestBody OrderKindEntity orderKind) {
-        OrderKindEntity updatedOrderKind = orderKindService.saveOrderKind(orderKind);
+    public ResponseEntity<OrderKind> updateOrderKind(@RequestBody OrderKind orderKind) {
+        OrderKind updatedOrderKind = orderKindService.saveOrderKind(orderKind);
         return new ResponseEntity<>(updatedOrderKind, HttpStatus.OK);
     }
 
@@ -43,8 +43,8 @@ public class OrderKindController {
 
     @GetMapping("/replace/{replace_id}/{new_id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> changeOrderKinds(@PathVariable(name = "replace_id") OrderKindEntity replaceKind,
-                                              @PathVariable(name = "new_id")     OrderKindEntity newKind) {
+    public ResponseEntity<?> changeOrderKinds(@PathVariable(name = "replace_id") OrderKind replaceKind,
+                                              @PathVariable(name = "new_id") OrderKind newKind) {
         orderKindService.replaceOrderKinds(replaceKind, newKind);
         orderKindService.deleteOrderKind(replaceKind.getKindId());
         return new ResponseEntity<>(HttpStatus.OK);

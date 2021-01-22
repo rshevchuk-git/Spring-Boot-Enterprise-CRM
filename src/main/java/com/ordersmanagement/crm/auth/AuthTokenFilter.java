@@ -1,7 +1,7 @@
 package com.ordersmanagement.crm.auth;
 
 import com.ordersmanagement.crm.events.AuthorizationEventPublisher;
-import com.ordersmanagement.crm.services.UserDetailsImpl;
+import com.ordersmanagement.crm.models.entities.UserDetailsImpl;
 import com.ordersmanagement.crm.services.UserDetailsServiceImpl;
 import com.ordersmanagement.crm.utils.JwtUtils;
 import org.slf4j.Logger;

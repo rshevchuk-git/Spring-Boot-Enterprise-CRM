@@ -1,8 +1,8 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.OrderTypeRepository;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
+import com.ordersmanagement.crm.dao.business.OrderTypeRepository;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.models.entities.OrderType;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,12 +17,12 @@ public class OrderTypeService {
     private final OrderService orderService;
     private final TypeFilterService typeFilterService;
 
-    public List<OrderTypeEntity> getAllOrderTypes() {
-        List<OrderTypeEntity> orderTypes = orderTypeRepository.findAll();
+    public List<OrderType> getAllOrderTypes() {
+        List<OrderType> orderTypes = orderTypeRepository.findAll();
         return typeFilterService.filterTypesForRoles(orderTypes);
     }
 
-    public Optional<OrderTypeEntity> saveOrderType(OrderTypeEntity orderType) {
+    public Optional<OrderType> saveOrderType(OrderType orderType) {
         if (orderTypeRepository.existsByTypeName(orderType.getTypeName())) return Optional.empty();
         return Optional.of(orderTypeRepository.save(orderType));
     }
@@ -36,8 +36,8 @@ public class OrderTypeService {
         }
     }
 
-    public void replaceOrderType(OrderTypeEntity replaceType, OrderTypeEntity newType) {
-        List<OrderEntity> byOrderType = orderService.getAllByOrderType(replaceType);
+    public void replaceOrderType(OrderType replaceType, OrderType newType) {
+        List<Order> byOrderType = orderService.getAllByOrderType(replaceType);
         byOrderType.forEach(order -> order.setOrderType(newType));
         orderService.saveAll(byOrderType);
     }

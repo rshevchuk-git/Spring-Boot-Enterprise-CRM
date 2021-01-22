@@ -2,7 +2,7 @@ package com.ordersmanagement.crm.controllers;
 
 import com.ordersmanagement.crm.chains.CustomerValidatorChain;
 import com.ordersmanagement.crm.models.dto.CustomersWrapper;
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
+import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.services.CustomerService;
 import com.ordersmanagement.crm.utils.CustomerExcelExporter;
 import com.ordersmanagement.crm.utils.LoggerUtils;
@@ -33,28 +33,28 @@ public class CustomerController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<List<CustomerEntity>> getAllCustomers() {
-        List<CustomerEntity> customerList = customerService.getAllCustomers();
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        List<Customer> customerList = customerService.getAllCustomers();
         return new ResponseEntity<>(customerList, HttpStatus.OK);
     }
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<CustomerEntity> saveCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+    public ResponseEntity<Customer> saveCustomer(@Valid @RequestBody Customer newCustomer) {
         LoggerUtils.logUserAction(logger, "creates:\n" + newCustomer);
         boolean isValid = validatorChain.validate(newCustomer);
         if (!isValid) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        CustomerEntity savedCustomer = customerService.saveCustomer(newCustomer);
+        Customer savedCustomer = customerService.saveCustomer(newCustomer);
         return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<CustomerEntity> updateCustomer(@Valid @RequestBody CustomerEntity newCustomer) {
+    public ResponseEntity<Customer> updateCustomer(@Valid @RequestBody Customer newCustomer) {
         LoggerUtils.logUserAction(logger, "changes customer [" + newCustomer.getCustomerId() + "] to:\n" + newCustomer);
-        CustomerEntity updatedCustomer = customerService.saveCustomer(newCustomer);
+        Customer updatedCustomer = customerService.saveCustomer(newCustomer);
         return new ResponseEntity<>(updatedCustomer, HttpStatus.OK);
     }
 

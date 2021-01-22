@@ -12,7 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "price_links")
-public class CPLinkEntity {
+public class CPLink {
 
     @EmbeddedId
     private CPLinkKey id;
@@ -20,12 +20,12 @@ public class CPLinkEntity {
     @ManyToOne
     @MapsId("customer_id")
     @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    private Customer customer;
 
     @ManyToOne
     @MapsId("kind_id")
     @JoinColumn(name = "kind_id")
-    private OrderKindEntity orderKind;
+    private OrderKind orderKind;
 
     @Column(name = "price")
     private double price;

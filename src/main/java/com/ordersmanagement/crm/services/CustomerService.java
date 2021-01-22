@@ -1,7 +1,7 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.dao.orders.CustomerRepository;
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
+import com.ordersmanagement.crm.dao.business.CustomerRepository;
+import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    public List<CustomerEntity> getAllCustomers() {
+    public List<Customer> getAllCustomers() {
         return customerRepository.findAll();
     }
 
@@ -24,11 +24,11 @@ public class CustomerService {
         return customerRepository.existsById(customerId);
     }
 
-    public Optional<CustomerEntity> getById(Integer customerId) {
+    public Optional<Customer> getById(Integer customerId) {
         return customerRepository.findById(customerId);
     }
 
-    public CustomerEntity saveCustomer(CustomerEntity newCustomer) {
+    public Customer saveCustomer(Customer newCustomer) {
         return customerRepository.save(newCustomer);
     }
 
@@ -44,7 +44,7 @@ public class CustomerService {
     public int paidOnCustomerBalance(Integer customerId, String receiver){
         return customerRepository.findAllByCustomerIdAndPayLogContaining(customerId, receiver)
                 .stream()
-                .map(CustomerEntity::getPayLog)
+                .map(Customer::getPayLog)
                 .map(log -> log.split("\n"))
                 .flatMap(Arrays::stream)
                 .filter(log -> log.contains(receiver))

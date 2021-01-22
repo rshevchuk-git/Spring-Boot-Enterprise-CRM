@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.controllers;
 
-import com.ordersmanagement.crm.models.entities.StatusEntity;
+import com.ordersmanagement.crm.models.entities.Status;
 import com.ordersmanagement.crm.services.StatusService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +21,8 @@ public class StatusController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
-    public ResponseEntity<List<StatusEntity>> getAllStatuses() {
-        List<StatusEntity> statusList = statusService.getAllStatuses();
+    public ResponseEntity<List<Status>> getAllStatuses() {
+        List<Status> statusList = statusService.getAllStatuses();
         return new ResponseEntity<>(statusList, HttpStatus.OK);
     }
 }

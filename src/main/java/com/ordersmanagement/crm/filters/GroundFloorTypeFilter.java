@@ -1,8 +1,8 @@
 package com.ordersmanagement.crm.filters;
 
 import com.ordersmanagement.crm.auth.ERole;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
-import com.ordersmanagement.crm.models.entities.OrderTypeEntity;
+import com.ordersmanagement.crm.models.entities.Order;
+import com.ordersmanagement.crm.models.entities.OrderType;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,18 +18,18 @@ public class GroundFloorTypeFilter implements TypeFilter {
     }
 
     @Override
-    public List<OrderTypeEntity> filterTypeList(List<OrderTypeEntity> typeList) {
+    public List<OrderType> filterTypeList(List<OrderType> typeList) {
         return typeList.stream()
                 .filter(this::isGroundFloorType)
                 .collect(toList());
     }
 
     @Override
-    public List<OrderEntity> filterOrderList(List<OrderEntity> orderList) {
+    public List<Order> filterOrderList(List<Order> orderList) {
         return orderList.stream().filter(order -> isGroundFloorType(order.getOrderType())).collect(toList());
     }
 
-    private boolean isGroundFloorType(OrderTypeEntity type) {
+    private boolean isGroundFloorType(OrderType type) {
         return  type.getTypeName().equals("Сольвентний друк") ||
                 type.getTypeName().equals("Офсетний друк") ||
                 type.getTypeName().equals("Екосольвентний друк") ||

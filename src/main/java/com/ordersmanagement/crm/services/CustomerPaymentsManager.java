@@ -1,8 +1,8 @@
 package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
-import com.ordersmanagement.crm.models.entities.OrderEntity;
+import com.ordersmanagement.crm.models.entities.Customer;
+import com.ordersmanagement.crm.models.entities.Order;
 import com.ordersmanagement.crm.models.pojos.Payment;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
@@ -25,8 +25,8 @@ public class CustomerPaymentsManager {
     }
 
     @Transactional
-    public void payFromCustomerBalance(OrderEntity order) throws CustomerNotFoundException {
-        CustomerEntity customer = customerService.getById(order.getCustomerId()).orElseThrow(CustomerNotFoundException::new);
+    public void payFromCustomerBalance(Order order) throws CustomerNotFoundException {
+        Customer customer = customerService.getById(order.getCustomerId()).orElseThrow(CustomerNotFoundException::new);
         if (customer.getMoney() == 0) return;
 
         int remainingUnpaid = order.getFinalSum() - order.getPaySum();

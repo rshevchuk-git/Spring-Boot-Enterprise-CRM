@@ -1,6 +1,6 @@
 package com.ordersmanagement.crm.events;
 
-import com.ordersmanagement.crm.services.UserDetailsImpl;
+import com.ordersmanagement.crm.models.entities.UserDetailsImpl;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 

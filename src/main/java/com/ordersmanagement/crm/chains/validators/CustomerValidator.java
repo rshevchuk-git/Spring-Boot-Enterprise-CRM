@@ -1,7 +1,7 @@
 package com.ordersmanagement.crm.chains.validators;
 
-import com.ordersmanagement.crm.models.entities.CustomerEntity;
+import com.ordersmanagement.crm.models.entities.Customer;
 
 public interface CustomerValidator {
-    boolean validate(CustomerEntity customer);
+    boolean validate(Customer customer);
 }

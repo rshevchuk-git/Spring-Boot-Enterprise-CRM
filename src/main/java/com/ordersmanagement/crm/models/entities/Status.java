@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Data
 @NoArgsConstructor
 @Table(name = "status")
-public class StatusEntity {
+public class Status {
 
     @Id
     @Column(name = "status_id")

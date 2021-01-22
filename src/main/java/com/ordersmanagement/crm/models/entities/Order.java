@@ -4,6 +4,8 @@ import com.ordersmanagement.crm.models.pojos.Payment;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
@@ -14,7 +16,7 @@ import java.util.Arrays;
 @Data
 @NoArgsConstructor
 @Table(name = "orders")
-public class OrderEntity {
+public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,31 +25,27 @@ public class OrderEntity {
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "status_id")
-    private StatusEntity status;
+    private Status status;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    private Customer customer;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "employee_id")
-    private EmployeeEntity employee;
+    private Employee employee;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "entrepreneur_id")
-    private EntrepreneurEntity entrepreneur;
+    private Entrepreneur entrepreneur;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "order_kind_id")
-    private OrderKindEntity orderKind;
+    private OrderKind orderKind;
 
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "order_type_id")
-    private OrderTypeEntity orderType;
-
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "payment_id")
-    private PaymentMethodEntity paymentType;
+    private OrderType orderType;
 
     @Column(name = "bill_no")
     private int billNo;

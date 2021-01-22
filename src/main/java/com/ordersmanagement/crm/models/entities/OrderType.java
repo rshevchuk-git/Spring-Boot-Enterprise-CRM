@@ -2,6 +2,9 @@ package com.ordersmanagement.crm.models.entities;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.List;
@@ -10,16 +13,17 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "order_type")
-public class OrderTypeEntity {
+public class OrderType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_type_id")
     private int typeId;
 
+    @ToString.Exclude
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "order_type_id")
-    private List<OrderKindEntity> orderKinds;
+    private List<OrderKind> orderKinds;
 
     @Column(name = "type")
     private String typeName;

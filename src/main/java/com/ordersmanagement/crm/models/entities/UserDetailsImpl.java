@@ -1,7 +1,6 @@
-package com.ordersmanagement.crm.services;
+package com.ordersmanagement.crm.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ordersmanagement.crm.models.entities.User32;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
