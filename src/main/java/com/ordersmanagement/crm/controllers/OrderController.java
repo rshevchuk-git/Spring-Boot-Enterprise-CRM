@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -103,7 +106,9 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ORDERS_EXPORTER')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody OrdersWrapper orders) throws IOException {
         LoggerUtils.logUserAction(logger, "requests orders export");
-        ByteArrayInputStream byteStream = new OrderExcelExporter(orders.getOrders()).export();
+        List<Order> orderList = orders.getOrders();
+        Collections.reverse(orderList);
+        ByteArrayInputStream byteStream = new OrderExcelExporter(orderList).export();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=список замовлень.xlsx");
         return ResponseEntity
