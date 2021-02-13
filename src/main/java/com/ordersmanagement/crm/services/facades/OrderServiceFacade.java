@@ -3,6 +3,7 @@ package com.ordersmanagement.crm.services.facades;
 import com.ordersmanagement.crm.exceptions.CustomerNotFoundException;
 import com.ordersmanagement.crm.models.entities.Order;
 import com.ordersmanagement.crm.services.CustomerPaymentsManager;
+import com.ordersmanagement.crm.services.MailService;
 import com.ordersmanagement.crm.services.OrderPaymentsManager;
 import com.ordersmanagement.crm.services.OrderService;
 import lombok.AllArgsConstructor;

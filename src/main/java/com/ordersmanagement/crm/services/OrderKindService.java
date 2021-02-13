@@ -3,9 +3,11 @@ package com.ordersmanagement.crm.services;
 import com.ordersmanagement.crm.dao.business.OrderKindRepository;
 import com.ordersmanagement.crm.models.entities.Order;
 import com.ordersmanagement.crm.models.entities.OrderKind;
+import com.ordersmanagement.crm.models.entities.OrderType;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -16,7 +18,9 @@ public class OrderKindService {
     private final OrderService orderService;
 
     public List<OrderKind> getAllOrderKinds() {
-        return orderKindRepository.findAll();
+        List<OrderKind> orderKindList = orderKindRepository.findAll();
+        orderKindList.sort(Comparator.comparing(OrderKind::getKindName));
+        return orderKindList;
     }
     
     public OrderKind saveOrderKind(OrderKind newOrderKind) {
