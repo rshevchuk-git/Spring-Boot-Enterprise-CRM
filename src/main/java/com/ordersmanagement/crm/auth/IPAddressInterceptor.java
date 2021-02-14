@@ -22,6 +22,10 @@ public class IPAddressInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (authService.getUserRoles().isEmpty()) {
+            return true;
+        }
+
         for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
             if (ERole.ROLE_ADMIN.toString().equals(grantedAuthority.getAuthority())) {
                 return true;

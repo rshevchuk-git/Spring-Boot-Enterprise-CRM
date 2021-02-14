@@ -43,7 +43,6 @@ public class OrderController {
     private final OrderInspectorChain inspectorChain;
 
     @GetMapping("/{customer_id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
     public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable("customer_id") Integer customerId) {
         List<Order> customerOrders = orderService.getCustomerOrders(customerId);
         return new ResponseEntity<>(customerOrders, HttpStatus.OK);
