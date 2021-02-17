@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findAllByCustomerIdAndPayLogContaining(Integer customerId, String receiver);
+    List<Customer> findAllByPayLogContaining(String receiver);
     boolean existsByCustomerName(String name);
     boolean existsByFirstPhone(String phone);
     boolean existsBySecondPhone(String phone);

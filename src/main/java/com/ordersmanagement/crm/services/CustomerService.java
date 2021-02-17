@@ -6,6 +6,8 @@ import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -43,12 +45,28 @@ public class CustomerService {
         }
     }
 
-    public int paidOnCustomerBalance(Integer customerId, String receiver){
+    public int paidOnCustomerBalance(Integer customerId, String receiver, LocalDate from, LocalDate till){
+        if (receiver == null || receiver.isEmpty()) return 0;
         return customerRepository.findAllByCustomerIdAndPayLogContaining(customerId, receiver)
                 .stream()
                 .map(Customer::getPayLog)
                 .map(log -> log.split("\n"))
                 .flatMap(Arrays::stream)
+                .filter(log -> from == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(from.minusDays(1)))
+                .filter(log -> till == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(till.plusDays(1)))
+                .filter(log -> log.contains(receiver))
+                .reduce(0, (currentVal, log) -> currentVal + PaymentUtils.getSumFromLog(log), Integer::sum);
+    }
+
+    public int paidByReceiver(String receiver, LocalDate from, LocalDate till) {
+        if (receiver == null || receiver.isEmpty()) return 0;
+        return customerRepository.findAllByPayLogContaining(receiver)
+                .stream()
+                .map(Customer::getPayLog)
+                .map(log -> log.split("\n"))
+                .flatMap(Arrays::stream)
+                .filter(log -> from == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(from.minusDays(1)))
+                .filter(log -> till == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(till.plusDays(1)))
                 .filter(log -> log.contains(receiver))
                 .reduce(0, (currentVal, log) -> currentVal + PaymentUtils.getSumFromLog(log), Integer::sum);
     }

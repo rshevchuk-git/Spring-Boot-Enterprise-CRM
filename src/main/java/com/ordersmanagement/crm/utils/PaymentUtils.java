@@ -46,7 +46,7 @@ public final class PaymentUtils {
         return new Payment(getSumFromLog(log), getLocalDateTimeFromLog(log), getReceiverFromLog(log));
     }
 
-    public static LocalDateTime getLocalDateTimeFromLog(String log){
+    public static LocalDateTime getLocalDateTimeFromLog(String log) {
         DateTimeFormatter DATE_FORMAT =
                 new DateTimeFormatterBuilder().appendPattern("dd/MM/yyyy[ [HH][:mm][:ss][.SSS]]")
                         .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)

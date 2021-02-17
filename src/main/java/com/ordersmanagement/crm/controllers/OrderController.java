@@ -86,7 +86,7 @@ public class OrderController {
                                           @RequestBody SortForm selections) {
         List<Order> filteredList = orderService.getSortedOrders(selections);
         if (showStatistics) {
-            Summary ordersSummary = orderService.summarize(filteredList, selections.getReceiver(), selections.getCustomer());
+            Summary ordersSummary = orderService.summarize(filteredList, selections.getReceiver(), selections.getCustomer(), selections.getPayDateFrom(), selections.getPayDateTill());
             return new ResponseEntity<>(ordersSummary, HttpStatus.OK);
         }
         return new ResponseEntity<>(filteredList, HttpStatus.OK);

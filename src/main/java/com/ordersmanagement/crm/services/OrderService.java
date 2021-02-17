@@ -9,14 +9,20 @@ import com.ordersmanagement.crm.models.pojos.Payment;
 import com.ordersmanagement.crm.utils.OrderUtils;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.jni.Local;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -88,19 +94,22 @@ public class OrderService {
         return orderRepository.save(newOrder);
     }
 
-    public Summary summarize(List<Order> orders, String paymentMethod, Customer customer) {
+    public Summary summarize(List<Order> orders, String paymentMethod, Customer customer, LocalDate paymentFrom, LocalDate paymentTill) {
         double  m2 = OrderUtils.totalOrdersM2(orders);
         int   fees = OrderUtils.totalOrdersFees(orders);
         int amount = OrderUtils.totalOrdersAmount(orders);
         int   paid = OrderUtils.totalOrdersPaid(orders, paymentMethod);
 
-        if (paymentMethod != null && !paymentMethod.isEmpty()) {
-            paid += customerService.paidOnCustomerBalance(customer.getCustomerId(), paymentMethod);
+        if (customer != null) {
+            paid += customerService.paidOnCustomerBalance(customer.getCustomerId(), paymentMethod, paymentFrom, paymentTill);
+        } else {
+            paid += customerService.paidByReceiver(paymentMethod, paymentFrom, paymentTill);
         }
         return new Summary(orders, paid, fees, amount, m2);
     }
 
     public List<Order> getSortedOrders(SortForm sortForm) {
+        boolean isEmptyDates = true;
         QOrder order = QOrder.order;
         BooleanBuilder where = new BooleanBuilder();
         if(sortForm.getOrderId() != null && sortForm.getOrderId() > 0) where.and(order.orderId.eq(sortForm.getOrderId()));
@@ -112,17 +121,27 @@ public class OrderService {
         if(sortForm.getDateTill() != null) where.and(order.date.before(sortForm.getDateTill().atStartOfDay().plusDays(1)));
         if(sortForm.getOrderKind() != null) where.and(order.orderKind.eq(sortForm.getOrderKind()));
         if(sortForm.getOrderType() != null) where.and(order.orderType.eq(sortForm.getOrderType()));
-        if(sortForm.getReceiver() != null) where.and(order.payLog.contains(sortForm.getReceiver()));
-        if(sortForm.getPayDateFrom() != null) where.and(order.payDate.after(sortForm.getPayDateFrom().atStartOfDay()));
-        if(sortForm.getPayDateTill() != null) where.and(order.payDate.before(sortForm.getPayDateTill().atStartOfDay().plusDays(1)));
-        if(sortForm.getDetails() != null && !sortForm.getDetails().trim().equals("")) where.and(order.comment.contains(sortForm.getDetails()));
+        if(sortForm.getReceiver() != null && !sortForm.getReceiver().trim().isEmpty()) where.and(order.payLog.contains(sortForm.getReceiver()));
+        if(sortForm.getDetails() != null && !sortForm.getDetails().trim().isEmpty()) where.and(order.comment.contains(sortForm.getDetails()));
+        if(sortForm.getPayDateFrom() != null || sortForm.getPayDateTill() != null) isEmptyDates = false;
 
-        List<Order> sortedOrders = getOrdersBySelections(where);
+        List<Order> sortedOrders = getOrdersBySelections(where, isEmptyDates);
+
+        if(sortForm.getPayDateFrom() != null || sortForm.getPayDateTill() != null) {
+            sortedOrders = sortedOrders.stream()
+                    .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
+                            .filter(log -> log.trim().length() > 0)
+                            .anyMatch(log -> sortForm.getPayDateFrom() == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(sortForm.getPayDateFrom().minusDays(1))))
+                    .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
+                            .filter(log -> log.trim().length() > 0)
+                            .anyMatch(log -> sortForm.getPayDateTill() == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(sortForm.getPayDateTill().plusDays(1))))
+                    .collect(Collectors.toList());
+        }
         return typeFilterService.filterOrdersForRoles(sortedOrders);
     }
 
-    private List<Order> getOrdersBySelections(BooleanBuilder where) {
-        if (where.getValue() == null) {
+    private List<Order> getOrdersBySelections(BooleanBuilder where, boolean isEmptyDates) {
+        if (where.getValue() == null && isEmptyDates) {
             return getRecentOrders();
         } else {
             return orderRepository.findAll(where, Sort.by(Sort.Direction.DESC, "orderId"));
