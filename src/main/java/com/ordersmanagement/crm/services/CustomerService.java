@@ -1,13 +1,13 @@
 package com.ordersmanagement.crm.services;
 
 import com.ordersmanagement.crm.dao.business.CustomerRepository;
+import com.ordersmanagement.crm.models.dto.SortForm;
 import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.utils.PaymentUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -45,23 +45,20 @@ public class CustomerService {
         }
     }
 
-    public int paidOnCustomerBalance(Integer customerId, String receiver, LocalDate from, LocalDate till){
-        if (receiver == null || receiver.isEmpty()) return 0;
-        return customerRepository.findAllByCustomerIdAndPayLogContaining(customerId, receiver)
-                .stream()
-                .map(Customer::getPayLog)
-                .map(log -> log.split("\n"))
-                .flatMap(Arrays::stream)
-                .filter(log -> from == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(from.minusDays(1)))
-                .filter(log -> till == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(till.plusDays(1)))
-                .filter(log -> log.contains(receiver))
-                .reduce(0, (currentVal, log) -> currentVal + PaymentUtils.getSumFromLog(log), Integer::sum);
+    public int paidOnCustomerBalance(SortForm selections){
+        if (selections.getReceiver() == null || selections.getReceiver().isEmpty()) return 0;
+        List<Customer> customerList;
+
+        if(selections.getCustomer() != null) {
+            customerList = customerRepository.findAllByCustomerIdAndPayLogContaining(selections.getCustomer().getCustomerId(), selections.getReceiver());
+        } else {
+            customerList = customerRepository.findAllByPayLogContaining(selections.getReceiver());
+        }
+        return calculatePaymentsSum(customerList, selections.getReceiver(), selections.getPayDateFrom(), selections.getPayDateTill());
     }
 
-    public int paidByReceiver(String receiver, LocalDate from, LocalDate till) {
-        if (receiver == null || receiver.isEmpty()) return 0;
-        return customerRepository.findAllByPayLogContaining(receiver)
-                .stream()
+    private int calculatePaymentsSum(List<Customer> customerList, String receiver, LocalDate from, LocalDate till) {
+        return customerList.stream()
                 .map(Customer::getPayLog)
                 .map(log -> log.split("\n"))
                 .flatMap(Arrays::stream)

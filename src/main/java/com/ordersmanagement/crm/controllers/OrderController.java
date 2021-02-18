@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,9 +82,9 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER') or hasRole('CUSTOMER')")
     public ResponseEntity<?> filterOrders(@RequestParam(name = "stat", required = false, defaultValue = "false") Boolean showStatistics,
                                           @RequestBody SortForm selections) {
-        List<Order> filteredList = orderService.getSortedOrders(selections);
+        List<Order> filteredList = orderService.getFilteredOrders(selections);
         if (showStatistics) {
-            Summary ordersSummary = orderService.summarize(filteredList, selections.getReceiver(), selections.getCustomer(), selections.getPayDateFrom(), selections.getPayDateTill());
+            Summary ordersSummary = orderService.summarize(filteredList, selections);
             return new ResponseEntity<>(ordersSummary, HttpStatus.OK);
         }
         return new ResponseEntity<>(filteredList, HttpStatus.OK);
