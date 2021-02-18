@@ -100,14 +100,18 @@ public class OrderService {
     }
 
     public List<Order> getFilteredOrders(SortForm sortForm) {
-        BooleanBuilder where = new BooleanBuilder();
-        boolean isEmptyDates = buildSortingCriteria(where, sortForm);
-        List<Order> sortedOrders = getOrdersByCriteria(where, isEmptyDates);
+        BooleanBuilder criteria = buildSortingCriteria(sortForm);
+        boolean isPaymentDateSelected = isEmptyPaymentDates(sortForm);
 
-        if(!isEmptyDates) {
+        List<Order> sortedOrders = getOrdersByCriteria(criteria, isPaymentDateSelected);
+        if(!isPaymentDateSelected) {
             sortedOrders = filterByPaymentDates(sortedOrders, sortForm.getPayDateFrom(), sortForm.getPayDateTill());
         }
         return typeFilterService.filterOrdersForRoles(sortedOrders);
+    }
+
+    private boolean isEmptyPaymentDates(SortForm selections) {
+        return selections.getPayDateFrom() == null && selections.getPayDateTill() == null;
     }
 
     private List<Order> getOrdersByCriteria(BooleanBuilder where, boolean isEmptyDates) {
@@ -129,9 +133,9 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    private boolean buildSortingCriteria(BooleanBuilder where, SortForm sortForm) {
+    private BooleanBuilder buildSortingCriteria(SortForm sortForm) {
         QOrder order = QOrder.order;
-        boolean isEmptyDates = true;
+        BooleanBuilder where = new BooleanBuilder();
         if(sortForm.getOrderId() != null && sortForm.getOrderId() > 0) where.and(order.orderId.eq(sortForm.getOrderId()));
         if(sortForm.getEntrepreneur() != null) where.and(order.entrepreneur.eq(sortForm.getEntrepreneur()));
         if(sortForm.getCustomer() != null) where.and(order.customer.eq(sortForm.getCustomer()));
@@ -143,7 +147,6 @@ public class OrderService {
         if(sortForm.getOrderType() != null) where.and(order.orderType.eq(sortForm.getOrderType()));
         if(sortForm.getReceiver() != null && !sortForm.getReceiver().trim().isEmpty()) where.and(order.payLog.contains(sortForm.getReceiver()));
         if(sortForm.getDetails() != null && !sortForm.getDetails().trim().isEmpty()) where.and(order.comment.contains(sortForm.getDetails()));
-        if(sortForm.getPayDateFrom() != null || sortForm.getPayDateTill() != null) isEmptyDates = false;
-        return isEmptyDates;
+        return where;
     }
 }
