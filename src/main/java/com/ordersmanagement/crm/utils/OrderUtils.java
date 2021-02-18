@@ -1,9 +1,13 @@
 package com.ordersmanagement.crm.utils;
 
+import com.ordersmanagement.crm.models.dto.SortForm;
+import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.models.entities.Order;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class OrderUtils {
 
@@ -24,16 +28,25 @@ public final class OrderUtils {
         return (double) Math.round(m2Val * 1000d) / 1000d;
     }
 
-    public static int totalOrdersPaid(List<Order> orders, String receiver) {
-        return orders.stream().reduce(0, (sum, order) -> {
-            if (receiver != null && !receiver.isEmpty()) {
-                int paymentSum = Arrays.stream(order.getPayLog().split("\n"))
-                        .filter(payment -> payment.contains(receiver))
-                        .reduce(0, (preVal, log) -> preVal + Integer.parseInt(log.substring(log.indexOf("ма : ") + 5, log.indexOf(" Отр") - 1)), Integer::sum);
-                return sum + paymentSum;
-            } else {
-                return sum + order.getPaySum();
-            }
-        }, Integer::sum);
+    public static List<Order> filterByPaymentDates(List<Order> orderList, LocalDate from, LocalDate till) {
+        return orderList.stream()
+                .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
+                        .filter(log -> log.trim().length() > 0)
+                        .anyMatch(log -> from == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(from.minusDays(1))))
+                .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
+                        .filter(log -> log.trim().length() > 0)
+                        .anyMatch(log -> till == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(till.plusDays(1))))
+                .collect(Collectors.toList());
+    }
+
+    public static int totalOrdersPaid(List<Order> orders, SortForm selections) {
+        return orders.stream()
+                .map(Order::getPayLog)
+                .map(log -> log.split("\n"))
+                .flatMap(Arrays::stream)
+                .filter(log -> selections.getPayDateFrom() == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(selections.getPayDateFrom().minusDays(1)))
+                .filter(log -> selections.getPayDateTill() == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(selections.getPayDateTill().plusDays(1)))
+                .filter(log -> selections.getReceiver() == null || selections.getReceiver().isEmpty() || log.contains(selections.getReceiver()))
+                .reduce(0, (currentVal, log) -> currentVal + PaymentUtils.getSumFromLog(log), Integer::sum);
     }
 }

@@ -46,9 +46,14 @@ public class CustomerService {
     }
 
     public int paidOnCustomerBalance(SortForm selections){
-        if (selections.getReceiver() == null || selections.getReceiver().isEmpty()) return 0;
-        List<Customer> customerList;
+        if (selections.getReceiver() == null || selections.getReceiver().isEmpty()) {
+            selections.setReceiver("Отримувач");
+            if (selections.getCustomer() == null && selections.getPayDateFrom() == null && selections.getPayDateTill() == null) {
+                return 0;
+            }
+        }
 
+        List<Customer> customerList;
         if(selections.getCustomer() != null) {
             customerList = customerRepository.findAllByCustomerIdAndPayLogContaining(selections.getCustomer().getCustomerId(), selections.getReceiver());
         } else {

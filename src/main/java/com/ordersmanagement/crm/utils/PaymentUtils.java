@@ -19,7 +19,11 @@ public final class PaymentUtils {
     }
 
     public static int getSumFromLog(String log) {
-        return Integer.parseInt(log.substring(log.indexOf("ма : ") + 5, log.indexOf(" Отр") - 1));
+        try {
+            return Integer.parseInt(log.substring(log.indexOf("ма : ") + 5, log.indexOf(" Отр") - 1));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public static String replaceSumInLog(String log, Integer newSum) {

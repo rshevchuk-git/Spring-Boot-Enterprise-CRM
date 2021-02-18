@@ -95,7 +95,7 @@ public class OrderService {
         double  m2 = OrderUtils.totalOrdersM2(orders);
         int   fees = OrderUtils.totalOrdersFees(orders);
         int amount = OrderUtils.totalOrdersAmount(orders);
-        int   paid = OrderUtils.totalOrdersPaid(orders, selections.getReceiver()) + customerService.paidOnCustomerBalance(selections);
+        int   paid = OrderUtils.totalOrdersPaid(orders, selections) + customerService.paidOnCustomerBalance(selections);
         return new Summary(orders, paid, fees, amount, m2);
     }
 
@@ -105,7 +105,7 @@ public class OrderService {
 
         List<Order> sortedOrders = getOrdersByCriteria(criteria, isPaymentDateSelected);
         if(!isPaymentDateSelected) {
-            sortedOrders = filterByPaymentDates(sortedOrders, sortForm.getPayDateFrom(), sortForm.getPayDateTill());
+            sortedOrders = OrderUtils.filterByPaymentDates(sortedOrders, sortForm.getPayDateFrom(), sortForm.getPayDateTill());
         }
         return typeFilterService.filterOrdersForRoles(sortedOrders);
     }
@@ -120,17 +120,6 @@ public class OrderService {
         } else {
             return orderRepository.findAll(where, Sort.by(Sort.Direction.DESC, "orderId"));
         }
-    }
-
-    private List<Order> filterByPaymentDates(List<Order> orderList, LocalDate from, LocalDate till) {
-        return orderList.stream()
-                .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
-                        .filter(log -> log.trim().length() > 0)
-                        .anyMatch(log -> from == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isAfter(from.minusDays(1))))
-                .filter(o -> Arrays.stream(o.getPayLog().split("\n"))
-                        .filter(log -> log.trim().length() > 0)
-                        .anyMatch(log -> till == null || PaymentUtils.getLocalDateTimeFromLog(log).toLocalDate().isBefore(till.plusDays(1))))
-                .collect(Collectors.toList());
     }
 
     private BooleanBuilder buildSortingCriteria(SortForm sortForm) {
