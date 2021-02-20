@@ -23,6 +23,10 @@ public final class OrderUtils {
         return orders.stream().reduce(0, (a, b) -> a + b.getAmount(), Integer::sum);
     }
 
+    public static int totalOrdersSum(List<Order> orders) {
+        return orders.stream().reduce(0, (a, b) -> a + b.getFinalSum(), Integer::sum);
+    }
+
     public static double calculateM2(Order order) {
         double m2Val = (order.getWidth() * order.getHeight() / 1000000.00) * order.getAmount();
         return (double) Math.round(m2Val * 1000d) / 1000d;

@@ -13,5 +13,6 @@ public class Summary {
     private int paid;
     private int fees;
     private int amount;
+    private int sum;
     private double m2;
 }

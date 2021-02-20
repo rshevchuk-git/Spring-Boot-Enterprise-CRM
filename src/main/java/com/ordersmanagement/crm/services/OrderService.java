@@ -95,8 +95,9 @@ public class OrderService {
         double  m2 = OrderUtils.totalOrdersM2(orders);
         int   fees = OrderUtils.totalOrdersFees(orders);
         int amount = OrderUtils.totalOrdersAmount(orders);
+        int    sum = OrderUtils.totalOrdersSum(orders);
         int   paid = OrderUtils.totalOrdersPaid(orders, selections) + customerService.paidOnCustomerBalance(selections);
-        return new Summary(orders, paid, fees, amount, m2);
+        return new Summary(orders, paid, fees, amount, sum, m2);
     }
 
     public List<Order> getFilteredOrders(SortForm sortForm) {
