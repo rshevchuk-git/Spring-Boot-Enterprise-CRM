@@ -4,6 +4,7 @@ import com.ordersmanagement.crm.chains.CustomerValidatorChain;
 import com.ordersmanagement.crm.models.dto.CustomersWrapper;
 import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.services.CustomerService;
+import com.ordersmanagement.crm.services.MailService;
 import com.ordersmanagement.crm.utils.CustomerExcelExporter;
 import com.ordersmanagement.crm.utils.LoggerUtils;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final CustomerValidatorChain validatorChain;
+    private final MailService mailService;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
@@ -47,6 +49,7 @@ public class CustomerController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Customer savedCustomer = customerService.saveCustomer(newCustomer);
+        mailService.informAboutNewCustomer(newCustomer);
         return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
     }
 

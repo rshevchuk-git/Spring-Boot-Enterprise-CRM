@@ -16,7 +16,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CustomerService {
 
-    private final MailService mailService;
     private final CustomerRepository customerRepository;
 
     public List<Customer> getAllCustomers() {
@@ -32,7 +31,6 @@ public class CustomerService {
     }
 
     public Customer saveCustomer(Customer newCustomer) {
-        mailService.sendNotification(newCustomer);
         return customerRepository.save(newCustomer);
     }
 

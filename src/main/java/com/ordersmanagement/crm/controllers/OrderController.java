@@ -7,7 +7,6 @@ import com.ordersmanagement.crm.models.dto.OrdersWrapper;
 import com.ordersmanagement.crm.models.dto.SortForm;
 import com.ordersmanagement.crm.models.dto.Summary;
 import com.ordersmanagement.crm.models.entities.Order;
-import com.ordersmanagement.crm.models.entities.Status;
 import com.ordersmanagement.crm.services.OrderService;
 import com.ordersmanagement.crm.services.facades.OrderServiceFacade;
 import com.ordersmanagement.crm.utils.LoggerUtils;
@@ -88,15 +87,6 @@ public class OrderController {
             return new ResponseEntity<>(ordersSummary, HttpStatus.OK);
         }
         return new ResponseEntity<>(filteredList, HttpStatus.OK);
-    }
-
-    @GetMapping("/statuses/{order_id}/{status_id}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
-    public ResponseEntity<Order> changeStatus(@PathVariable(name = "order_id") Order order,
-                                              @PathVariable(name = "status_id") Status status) {
-        LoggerUtils.logUserAction(logger, "changes status of " + order.getOrderId() + " to " + status.getName());
-        Order updatedOrder = orderService.changeOrderStatus(order, status);
-        return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
     @PostMapping(value = "/export", consumes="application/json", produces="application/json")
