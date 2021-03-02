@@ -24,6 +24,7 @@ public class MailService {
 
     public void informAboutStatusChange(Order order) {
         if (order.getStatus().getId() != 3) return;
+        if (order.getCustomer().getFirstEmail() == null || order.getCustomer().getFirstEmail().trim().isEmpty()) return;
         StatusNotification statusNotification = new StatusNotification(order, emailSender);
         send(statusNotification);
     }
