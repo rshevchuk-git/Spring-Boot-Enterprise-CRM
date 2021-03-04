@@ -25,7 +25,7 @@ public class StatusNotification implements Runnable {
         message.setSubject("Ваше замовлення №" + order.getOrderId() + " готове");
         String text = "Вітаємо,\n\n" + "Ваше замовлення №" + order.getOrderId() + " від " + formatter.format(order.getDate()) + " готове\n";
         text += order.getOrderType().getTypeName() + " / " + order.getOrderKind().getKindName() + " / " + order.getComment() + "\n\n";
-        text += "З детальною інформацією по ваших замовеннях ви можете ознайомитись в особистому кабінеті: https://app.psdruk.com.ua/";
+        text += "З детальною інформацією по ваших замовленнях ви можете ознайомитись в особистому кабінеті: https://app.psdruk.com.ua/";
         message.setText(text);
         mailSender.send(message);
     }
