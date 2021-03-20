@@ -3,7 +3,9 @@ package com.ordersmanagement.crm.controllers;
 import com.ordersmanagement.crm.chains.CustomerValidatorChain;
 import com.ordersmanagement.crm.models.dto.CustomersWrapper;
 import com.ordersmanagement.crm.models.entities.Customer;
+import com.ordersmanagement.crm.models.pojos.Debtor;
 import com.ordersmanagement.crm.services.CustomerService;
+import com.ordersmanagement.crm.services.DebtorService;
 import com.ordersmanagement.crm.services.MailService;
 import com.ordersmanagement.crm.utils.CustomerExcelExporter;
 import com.ordersmanagement.crm.utils.LoggerUtils;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
@@ -32,12 +35,20 @@ public class CustomerController {
     private final CustomerService customerService;
     private final CustomerValidatorChain validatorChain;
     private final MailService mailService;
+    private final DebtorService debtorService;
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
     public ResponseEntity<List<Customer>> getAllCustomers() {
         List<Customer> customerList = customerService.getAllCustomers();
         return new ResponseEntity<>(customerList, HttpStatus.OK);
+    }
+
+    @GetMapping("/debtors")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('WORKER')")
+    public ResponseEntity<List<Debtor>> getAllDebtors() {
+        List<Debtor> debtorList = debtorService.getDebtorList();
+        return new ResponseEntity<>(debtorList, HttpStatus.OK);
     }
 
     @PostMapping("/")

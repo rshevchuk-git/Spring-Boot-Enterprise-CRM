@@ -99,8 +99,11 @@ public class Order {
     }
 
     public void setPayLog(String newLog) {
-        if (newLog == null || newLog.isEmpty()) return;
-        this.payLog = newLog.trim() + "\n";
+        if (newLog == null || newLog.isEmpty()) {
+            this.payLog = "";
+        } else {
+            this.payLog = newLog.trim() + "\n";
+        }
     }
 
     public void appendPayLog(String appendix) {
@@ -121,7 +124,10 @@ public class Order {
     public void removeLastPayment() {
         Payment lastPayment = PaymentUtils.getLastPayment(this.getPayLog());
         int lastNewLineIdx = this.getPayLog().trim().lastIndexOf("\n");
-        String newLog = this.getPayLog().substring(0, lastNewLineIdx);
+        String newLog = "";
+        if (lastNewLineIdx > 0) {
+            newLog = this.getPayLog().substring(0, lastNewLineIdx);
+        }
         this.setPaySum(this.getPaySum() - lastPayment.getSum());
         this.setPayLog(newLog);
     }
