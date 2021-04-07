@@ -1,6 +1,5 @@
 package com.ordersmanagement.crm.services;
 
-import com.ordersmanagement.crm.auth.ERole;
 import com.ordersmanagement.crm.events.AuthorizationEventPublisher;
 import com.ordersmanagement.crm.models.dto.JwtResponse;
 import com.ordersmanagement.crm.models.dto.LoginForm;
@@ -41,13 +40,9 @@ public class AuthService {
     }
 
     public List<String> getUserRoles(UserDetailsImpl userDetails) {
-        List<String> userRoles = userDetails.getAuthorities().stream()
+        return userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        if (userRoles.isEmpty()) {
-            userRoles.add(ERole.ROLE_CUSTOMER.toString());
-        }
-        return userRoles;
     }
 
     public JwtResponse trySignIn(LoginForm credentials) {
@@ -58,6 +53,7 @@ public class AuthService {
         jwtResponse.setToken(jwtUtils.generateJwtToken(authentication));
         jwtResponse.setId(userDetails.getId());
         jwtResponse.setUsername(userDetails.getUsername());
+        jwtResponse.setFullName(userDetails.getFullName());
         jwtResponse.setRoles(getUserRoles(userDetails));
         jwtResponse.setEmployee(AuthUtils.LOGGED_EMPLOYEE);
         jwtResponse.setCustomer(AuthUtils.LOGGED_CUSTOMER);

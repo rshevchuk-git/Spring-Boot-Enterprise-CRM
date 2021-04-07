@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,8 +23,10 @@ public class DebtorService {
                 "FROM Customer c\n" +
                 "JOIN Order o on c.id = o.customer.id\n" +
                 "GROUP BY c.customerName ", Debtor.class);
-        List<Debtor> debtorList = query.getResultList();
-        debtorList.sort((o1, o2) -> (int) (o2.getDebt() - o1.getDebt()));
-        return debtorList;
+        return query.getResultList()
+                .stream()
+                .filter(debtor -> debtor.getDebt() > 0)
+                .sorted((o1, o2) -> (int) (o2.getDebt() - o1.getDebt()))
+                .collect(Collectors.toList());
     }
 }

@@ -1,6 +1,7 @@
 package com.ordersmanagement.crm.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ordersmanagement.crm.auth.ERole;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,16 +19,18 @@ public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = 1L;
     private Integer id;
     private String username;
+    private String fullName;
     private Collection<? extends GrantedAuthority> authorities;
     private Integer customerID;
     @JsonIgnore
     private String password;
 
-    public UserDetailsImpl(Integer id, String username, String password,
+    public UserDetailsImpl(Integer id, String username, String fullName, String password,
                            Collection<? extends GrantedAuthority> authorities,
                            Integer customerID) {
         this.id = id;
         this.username = username;
+        this.fullName = fullName;
         this.password = password;
         this.authorities = authorities;
         this.customerID = customerID;
@@ -38,9 +41,16 @@ public class UserDetailsImpl implements UserDetails {
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
+
+        if (authorities.isEmpty()) {
+            authorities.add(new SimpleGrantedAuthority(ERole.ROLE_CUSTOMER.toString()));
+            authorities.add(new SimpleGrantedAuthority(ERole.ROLE_ORDERS_EXPORTER.toString()));
+        }
+
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
+                user.getFullName(),
                 user.getPassword(),
                 authorities,
                 user.getCustomerID());

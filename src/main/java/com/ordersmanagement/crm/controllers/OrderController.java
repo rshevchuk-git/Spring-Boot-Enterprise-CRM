@@ -90,7 +90,7 @@ public class OrderController {
     }
 
     @PostMapping(value = "/export", consumes="application/json", produces="application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('ROLE_ORDERS_EXPORTER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ORDERS_EXPORTER') or hasRole('CUSTOMER')")
     public ResponseEntity<InputStreamResource> exportToExcel(@RequestBody OrdersWrapper orders) throws IOException {
         LoggerUtils.logUserAction(logger, "requests orders export");
         List<Order> orderList = orders.getOrders();

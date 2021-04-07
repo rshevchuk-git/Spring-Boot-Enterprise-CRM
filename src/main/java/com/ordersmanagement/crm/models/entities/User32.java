@@ -20,6 +20,11 @@ public class User32 {
     private int id;
 
     @NotBlank
+    @Column(name = "username")
+    private String fullName;
+
+    @NotBlank
+    @Column(name = "email")
     private String username;
 
     @NotBlank

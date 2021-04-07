@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -117,6 +118,16 @@ public class OrderExcelExporter {
         outputStream.close();
 
         return new ByteArrayInputStream(outputStream.toByteArray());
+    }
+
+    public void exportToFile(String path) throws IOException {
+        writeHeaderRow();
+        writeDataRows();
+
+        FileOutputStream out = new FileOutputStream(path);
+        workbook.write(out);
+        workbook.close();
+        out.close();
     }
 
     private LocalDateTime getLocalDateTimeFromLog(String log){

@@ -6,7 +6,6 @@ import com.ordersmanagement.crm.events.AuthorizationEvent;
 import com.ordersmanagement.crm.models.entities.Customer;
 import com.ordersmanagement.crm.models.entities.Employee;
 import com.ordersmanagement.crm.models.entities.UserDetailsImpl;
-import com.ordersmanagement.crm.services.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.context.ApplicationListener;
