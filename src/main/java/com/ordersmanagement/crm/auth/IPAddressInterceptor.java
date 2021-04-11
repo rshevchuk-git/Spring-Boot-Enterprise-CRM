@@ -14,6 +14,8 @@ import java.util.List;
 @Component
 public class IPAddressInterceptor implements HandlerInterceptor {
 
+    private final List<String> allowedRoles = List.of(ERole.ROLE_ADMIN.toString(), ERole.ROLE_CUSTOMER.toString());
+
     @Value(value = "${allowed.addresses}")
     private List<String> allowedAddresses;
 
@@ -22,12 +24,8 @@ public class IPAddressInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (authService.getUserRoles().isEmpty()) {
-            return true;
-        }
-
-        for (GrantedAuthority grantedAuthority : authService.getUserRoles()) {
-            if (ERole.ROLE_ADMIN.toString().equals(grantedAuthority.getAuthority())) {
+        for (GrantedAuthority authority : authService.getUserRoles()) {
+            if (isAllowed(authority)) {
                 return true;
             }
         }
@@ -39,5 +37,9 @@ public class IPAddressInterceptor implements HandlerInterceptor {
         clientAddress = clientAddress.contains(",") ? clientAddress.split(",")[0] : clientAddress;
 
         return allowedAddresses.contains(clientAddress);
+    }
+
+    private boolean isAllowed(GrantedAuthority grantedAuthority) {
+        return allowedRoles.contains(grantedAuthority.getAuthority());
     }
 }
